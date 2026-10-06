@@ -1,7 +1,7 @@
-// api/cabos.js - Vercel Serverless Function para Gestão de Cabos de Canindé de São Francisco
-// Suporta persistência automática na nuvem com Vercel KV (Redis) ou fallback instantâneo com base oficial
-
-const CABOS_OFICIAIS = [];
+// In-memory store fallback across serverless container invocations
+if (!globalThis.__CABOS_MEM_STORE__) {
+  globalThis.__CABOS_MEM_STORE__ = [];
+}
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -16,7 +16,9 @@ export default async function handler(req, res) {
   const kvToken = process.env.KV_REST_API_TOKEN;
 
   async function getFromKV() {
-    if (!kvUrl || !kvToken) return null;
+    if (!kvUrl || !kvToken) {
+      return globalThis.__CABOS_MEM_STORE__ || [];
+    }
     try {
       const resp = await fetch(`${kvUrl}/get/cabos_caninde_2026`, {
         headers: { Authorization: `Bearer ${kvToken}` }
@@ -25,14 +27,15 @@ export default async function handler(req, res) {
       if (json && json.result) {
         return typeof json.result === "string" ? JSON.parse(json.result) : json.result;
       }
-      return null;
+      return globalThis.__CABOS_MEM_STORE__ || [];
     } catch (e) {
-      return null;
+      return globalThis.__CABOS_MEM_STORE__ || [];
     }
   }
 
   async function saveToKV(lista) {
-    if (!kvUrl || !kvToken) return false;
+    globalThis.__CABOS_MEM_STORE__ = Array.isArray(lista) ? [...lista] : [];
+    if (!kvUrl || !kvToken) return true;
     try {
       await fetch(`${kvUrl}/set/cabos_caninde_2026`, {
         method: "POST",
@@ -48,7 +51,7 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     let cabos = await getFromKV();
     if (!cabos || !Array.isArray(cabos)) {
-      cabos = [];
+      cabos = globalThis.__CABOS_MEM_STORE__ || [];
     }
     const ano = parseInt(req.query ? req.query.ano : 2026) || 2026;
     const filtrados = cabos.filter(c => !c.ano || c.ano === ano);
@@ -64,7 +67,14 @@ export default async function handler(req, res) {
 
     let cabos = await getFromKV();
     if (!cabos || !Array.isArray(cabos)) {
-      cabos = CABOS_OFICIAIS;
+      cabos = [];
+    }
+
+    // Suporte a importação/sincronização em lote (Array de cabos)
+    if (Array.isArray(body)) {
+      cabos = body;
+      await saveToKV(cabos);
+      return res.status(200).json({ status: "ok", count: cabos.length });
     }
 
     // Exclusão de cabo

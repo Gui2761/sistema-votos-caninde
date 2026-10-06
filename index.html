@@ -111,6 +111,9 @@
           </div>
         </div>
         <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <button onclick="abrirModalSync()" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition shadow-md active:scale-95" title="Sincronizar dados com o celular via QR Code ou WhatsApp">
+            <i class="fa-solid fa-mobile-screen"></i> <span class="hidden sm:inline">Sincronizar Celular</span><span class="sm:hidden">Celular</span>
+          </button>
           <button onclick="abrirModalCabo()" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-lg transition shadow-md active:scale-95">
             <i class="fa-solid fa-user-plus"></i> <span class="hidden sm:inline">+ Cabo Eleitoral</span><span class="sm:hidden">+ Cabo</span>
           </button>
@@ -408,9 +411,14 @@
           </h2>
           <p class="text-xs text-slate-500">Vincule lideranças comunitárias aos candidatos em cada escola e urna eleitoral de Canindé</p>
         </div>
-        <button onclick="abrirModalCabo()" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl transition shadow-md hover:shadow-lg">
-          <i class="fa-solid fa-plus"></i> Novo Cabo Eleitoral
-        </button>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="abrirModalSync()" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition shadow-md active:scale-95" title="Sincronizar cabos com o celular via QR Code ou WhatsApp">
+            <i class="fa-solid fa-mobile-screen"></i> Sincronizar Celular
+          </button>
+          <button onclick="abrirModalCabo()" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl transition shadow-md hover:shadow-lg">
+            <i class="fa-solid fa-plus"></i> Novo Cabo Eleitoral
+          </button>
+        </div>
       </div>
 
       <!-- FILTRO DE CABOS -->
@@ -757,6 +765,61 @@
     </div>
   </div>
 
+  <!-- MODAL DE SINCRONIZAÇÃO COM O CELULAR -->
+  <div id="modalSync" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full p-5 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto text-center">
+      
+      <!-- Puxador visual para celular -->
+      <div class="w-12 h-1.5 bg-slate-300 rounded-full mx-auto sm:hidden -mt-1 mb-2 cursor-pointer" onclick="fecharModalSync()"></div>
+
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-mobile-screen-button text-indigo-600"></i> Sincronizar com o Celular
+        </h3>
+        <button type="button" onclick="fecharModalSync()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold leading-none p-1">&times;</button>
+      </div>
+
+      <p class="text-xs text-slate-600 text-left">
+        Transfira suas lideranças e cabos eleitorais do computador para o celular com <span class="font-bold text-emerald-700">100% de persistência</span>:
+      </p>
+
+      <!-- QR CODE CONTAINER -->
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 inline-block w-full text-center">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+          <i class="fa-solid fa-qrcode text-indigo-600 mr-1"></i> Opção 1: Aponte a Câmera do Celular
+        </p>
+        <div class="relative inline-block bg-white p-2 rounded-xl shadow-inner border border-slate-200">
+          <img id="imgQrCodeSync" class="w-48 h-48 mx-auto object-contain rounded-lg" alt="QR Code de Sincronização" />
+        </div>
+        <p class="text-[10px] text-slate-500 mt-2">
+          Ao abrir o link no celular, todas as <span id="syncQtdCabos" class="font-bold text-emerald-700">0</span> lideranças serão salvas automaticamente!
+        </p>
+      </div>
+
+      <!-- BOTÕES DE AÇÃO -->
+      <div class="space-y-2 pt-1 text-left">
+        <a id="btnZapSync" href="#" target="_blank" class="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow transition active:scale-95">
+          <i class="fa-brands fa-whatsapp text-sm"></i> Enviar Link com Dados no WhatsApp
+        </a>
+
+        <button type="button" onclick="copiarLinkSync()" class="w-full inline-flex items-center justify-center gap-2 py-2 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 font-bold text-xs rounded-xl border border-indigo-200 transition active:scale-95">
+          <i class="fa-solid fa-copy"></i> Copiar Link com Dados
+        </button>
+
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+          <button type="button" onclick="exportarBackupJSON()" class="flex-1 text-[11px] font-bold text-slate-600 hover:text-slate-900 py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-center transition">
+            <i class="fa-solid fa-download mr-1"></i> Baixar Backup
+          </button>
+          <label class="flex-1 text-[11px] font-bold text-slate-600 hover:text-slate-900 py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-center transition cursor-pointer">
+            <i class="fa-solid fa-upload mr-1"></i> Restaurar Backup
+            <input type="file" id="inpSyncFile" accept=".json" onchange="importarBackupJSON(event)" class="hidden" />
+          </label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- RODAPÉ -->
   <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-8 mb-16 lg:mb-0 no-print">
     <div class="max-w-7xl mx-auto px-4 space-y-2">
@@ -811,9 +874,11 @@
           const cabosImportados = JSON.parse(jsonStr);
           if (Array.isArray(cabosImportados) && cabosImportados.length > 0) {
             localStorage.setItem("cabos_caninde_2026", JSON.stringify(cabosImportados));
+            localStorage.setItem("cabos_caninde_master", JSON.stringify(cabosImportados));
             history.replaceState(null, null, window.location.pathname + window.location.search);
             setTimeout(() => {
-              alert(`✅ Sincronização Concluída!\n\n${cabosImportados.length} lideranças/cabos eleitorais foram salvos neste dispositivo com sucesso!`);
+              setTab("cabos");
+              alert(`✅ Sincronização Concluída!\n\n${cabosImportados.length} liderança(s)/cabo(s) eleitoral(is) foram salvos neste celular com sucesso!`);
             }, 300);
           }
         } catch (errSync) {
@@ -1534,10 +1599,10 @@
     async function carregarCabos() {
       const ano = parseInt(document.getElementById("selAno").value) || 2026;
       
-      // 1. Tentar ler do localStorage local primeiro (sempre preserva os dados do usuário)
+      // 1. Tentar ler do localStorage local primeiro (suporta múltiplas chaves para máxima persistência)
       let locaisSalvos = [];
       try {
-        const s = localStorage.getItem("cabos_caninde_" + ano);
+        const s = localStorage.getItem("cabos_caninde_" + ano) || localStorage.getItem("cabos_caninde_master") || localStorage.getItem("cabos_caninde_2026");
         if (s) {
           const arr = JSON.parse(s);
           if (Array.isArray(arr)) locaisSalvos = arr;
@@ -1556,6 +1621,7 @@
             dados.forEach(c => map.set(c.id, c));
             cabosList = Array.from(map.values());
             localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
+            localStorage.setItem("cabos_caninde_master", JSON.stringify(cabosList));
           } else {
             cabosList = locaisSalvos;
           }
@@ -1567,12 +1633,6 @@
       }
 
       if (!cabosList) cabosList = [];
-
-      // Limpar resíduos antigos de teste com 'Severino'
-      if (cabosList.length > 0 && cabosList.some(c => c.nome_cabo && c.nome_cabo.includes("Severino da Silva (Biu)"))) {
-        cabosList = cabosList.filter(c => !c.nome_cabo.includes("Severino da Silva (Biu)"));
-        try { localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList)); } catch (e) {}
-      }
 
       const badge = document.getElementById("badgeQtdCabos");
       if (badge) badge.textContent = cabosList.length;
@@ -1736,27 +1796,31 @@
         const cargos = CARGOS_CONFIG[ano] || [];
         cargos.forEach(cg => {
           const cands = db && db.candidatos_geral ? (db.candidatos_geral[`${ano}_1_${cg}`] || []) : [];
-          cands.slice(0, 15).forEach(c => {
-            const opt = document.createElement("option");
-            opt.value = c.nr;
-            opt.dataset.nome = c.nome;
-            opt.dataset.cargo = cg;
-            opt.textContent = `${c.nr} - ${c.nome} (${cg} - ${c.partido})`;
-            if (candNr && c.nr === candNr) opt.selected = true;
-            selCand.appendChild(opt);
+          cands.forEach(c => {
+            if (c.tipo !== "Branco" && c.tipo !== "Nulo") {
+              const opt = document.createElement("option");
+              opt.value = c.nr;
+              opt.dataset.nome = c.nome;
+              opt.dataset.cargo = cg;
+              opt.textContent = `${c.nr} - ${c.nome} (${cg} - ${c.partido})`;
+              if (candNr && c.nr === candNr) opt.selected = true;
+              selCand.appendChild(opt);
+            }
           });
         });
       } else {
         const geralKey = `${ano}_1_${cargo}`;
         const cands = db && db.candidatos_geral ? (db.candidatos_geral[geralKey] || []) : [];
-        cands.slice(0, 30).forEach(c => {
-          const opt = document.createElement("option");
-          opt.value = c.nr;
-          opt.dataset.nome = c.nome;
-          opt.dataset.cargo = cargo;
-          opt.textContent = `${c.nr} - ${c.nome} (${c.partido})`;
-          if (candNr && c.nr === candNr) opt.selected = true;
-          selCand.appendChild(opt);
+        cands.forEach(c => {
+          if (c.tipo !== "Branco" && c.tipo !== "Nulo") {
+            const opt = document.createElement("option");
+            opt.value = c.nr;
+            opt.dataset.nome = c.nome;
+            opt.dataset.cargo = cargo;
+            opt.textContent = `${c.nr} - ${c.nome} (${c.partido})`;
+            if (candNr && c.nr === candNr) opt.selected = true;
+            selCand.appendChild(opt);
+          }
         });
       }
 
@@ -1857,6 +1921,15 @@
       // 1. Salvar IMEDIATAMENTE na lista ativa e no localStorage
       cabosList.unshift(payload);
       localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
+      localStorage.setItem("cabos_caninde_master", JSON.stringify(cabosList));
+
+      // Resetar filtros de busca para que o cabo cadastrado apareça de imediato
+      const fCand = document.getElementById("filtroCaboCand");
+      if (fCand) fCand.value = "ALL";
+      const fLoc = document.getElementById("filtroCaboLocal");
+      if (fLoc) fLoc.value = "ALL";
+      const fTxt = document.getElementById("filtroCaboTexto");
+      if (fTxt) fTxt.value = "";
 
       // 2. Atualizar a tela imediatamente (renderizar card, filtros e relatório)
       fecharModalCabo();
@@ -1881,6 +1954,7 @@
           if (res && res.id) {
             payload.id = res.id;
             localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
+            localStorage.setItem("cabos_caninde_master", JSON.stringify(cabosList));
           }
         }
       } catch (err) {
@@ -1893,6 +1967,7 @@
       const ano = parseInt(document.getElementById("selAno").value) || 2026;
       cabosList = cabosList.filter(c => c.id !== id);
       localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
+      localStorage.setItem("cabos_caninde_master", JSON.stringify(cabosList));
       popularFiltrosCabos();
       renderCabos();
       renderRelatorio();
@@ -1908,6 +1983,119 @@
           body: JSON.stringify({ id: id })
         });
       } catch (e) {}
+    }
+
+    // ==========================================
+    // SINCRONIZAÇÃO PC <-> CELULAR & BACKUP
+    // ==========================================
+    function abrirModalSync() {
+      const ano = parseInt(document.getElementById("selAno").value) || 2026;
+      let cabos = cabosList || [];
+      if (cabos.length === 0) {
+        try {
+          const s = localStorage.getItem("cabos_caninde_" + ano) || localStorage.getItem("cabos_caninde_master") || localStorage.getItem("cabos_caninde_2026");
+          if (s) cabos = JSON.parse(s);
+        } catch (e) {}
+      }
+
+      const qtdSpan = document.getElementById("syncQtdCabos");
+      if (qtdSpan) qtdSpan.textContent = cabos.length;
+
+      // Montar link com payload codificado
+      const jsonStr = JSON.stringify(cabos);
+      const b64 = btoa(unescape(encodeURIComponent(jsonStr)));
+      const base = window.location.origin + window.location.pathname;
+      const fullUrl = `${base}#sync=${b64}`;
+
+      // Gerar QR Code instantâneo
+      const imgQr = document.getElementById("imgQrCodeSync");
+      if (imgQr) {
+        imgQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(fullUrl)}`;
+      }
+
+      // Configurar botão WhatsApp
+      const btnZap = document.getElementById("btnZapSync");
+      if (btnZap) {
+        const msgZap = `🗳️ *Sistema Eleitoral Canindé de São Francisco*\n\nAcesse o sistema no seu celular com ${cabos.length} liderança(s)/cabo(s) já sincronizados:\n\n${fullUrl}`;
+        btnZap.href = `https://wa.me/?text=${encodeURIComponent(msgZap)}`;
+      }
+
+      const modal = document.getElementById("modalSync");
+      if (modal) {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+    }
+
+    function fecharModalSync() {
+      const modal = document.getElementById("modalSync");
+      if (modal) {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      }
+    }
+
+    function copiarLinkSync() {
+      const ano = parseInt(document.getElementById("selAno").value) || 2026;
+      let cabos = cabosList || [];
+      if (cabos.length === 0) {
+        try {
+          const s = localStorage.getItem("cabos_caninde_" + ano) || localStorage.getItem("cabos_caninde_master") || localStorage.getItem("cabos_caninde_2026");
+          if (s) cabos = JSON.parse(s);
+        } catch (e) {}
+      }
+      const jsonStr = JSON.stringify(cabos);
+      const b64 = btoa(unescape(encodeURIComponent(jsonStr)));
+      const base = window.location.origin + window.location.pathname;
+      const fullUrl = `${base}#sync=${b64}`;
+
+      navigator.clipboard.writeText(fullUrl).then(() => {
+        alert("✅ Link de Sincronização copiado com sucesso!\n\nEnvie este link para o WhatsApp ou abra no navegador do seu celular para salvar os cabos.");
+      }).catch(() => {
+        prompt("Copie o link abaixo para abrir no seu celular:", fullUrl);
+      });
+    }
+
+    function exportarBackupJSON() {
+      const cabos = cabosList || [];
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cabos, null, 2));
+      const a = document.createElement("a");
+      a.href = dataStr;
+      a.download = `cabos_caninde_backup_${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function importarBackupJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const dados = JSON.parse(e.target.result);
+          if (Array.isArray(dados)) {
+            const ano = parseInt(document.getElementById("selAno").value) || 2026;
+            cabosList = dados;
+            localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
+            localStorage.setItem("cabos_caninde_master", JSON.stringify(cabosList));
+            fecharModalSync();
+            popularFiltrosCabos();
+            renderCabos();
+            renderRelatorio();
+            const badge = document.getElementById("badgeQtdCabos");
+            if (badge) badge.textContent = cabosList.length;
+            const badgeNav = document.getElementById("badgeNavCabos");
+            if (badgeNav) badgeNav.textContent = cabosList.length;
+            alert(`✅ Backup Restaurado com Sucesso!\n\n${dados.length} liderança(s) carregada(s).`);
+          } else {
+            alert("Arquivo JSON inválido.");
+          }
+        } catch (err) {
+          alert("Erro ao ler o arquivo JSON: " + err.message);
+        }
+      };
+      reader.readAsText(file);
     }
 
     // ==========================================
