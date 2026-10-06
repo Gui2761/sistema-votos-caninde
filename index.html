@@ -1507,44 +1507,46 @@
     let cabosList = [];
 
     async function carregarCabos() {
-      const ano = parseInt(document.getElementById("selAno").value);
+      const ano = parseInt(document.getElementById("selAno").value) || 2026;
       
-      // 1. Tentar carregar da API na nuvem/local
-      let carregou = false;
+      // 1. Tentar ler do localStorage local primeiro (sempre preserva os dados do usuário)
+      let locaisSalvos = [];
+      try {
+        const s = localStorage.getItem("cabos_caninde_" + ano);
+        if (s) {
+          const arr = JSON.parse(s);
+          if (Array.isArray(arr)) locaisSalvos = arr;
+        }
+      } catch (e) {}
+
+      // 2. Tentar sincronizar com a API sem apagar o que o usuário cadastrou
       try {
         const resp = await fetch(`/api/cabos?ano=${ano}`);
         if (resp.ok) {
           const dados = await resp.json();
-          if (Array.isArray(dados)) {
-            cabosList = dados;
-            carregou = true;
+          if (Array.isArray(dados) && dados.length > 0) {
+            // Mesclar dados sem duplicar IDs
+            const map = new Map();
+            locaisSalvos.forEach(c => map.set(c.id, c));
+            dados.forEach(c => map.set(c.id, c));
+            cabosList = Array.from(map.values());
+            localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
+          } else {
+            cabosList = locaisSalvos;
           }
+        } else {
+          cabosList = locaisSalvos;
         }
-      } catch (e) {}
-
-      // 2. Se não veio da API, buscar do localStorage deste dispositivo
-      if (!carregou) {
-        const salvos = localStorage.getItem("cabos_caninde_" + ano);
-        if (salvos) {
-          try {
-            const arr = JSON.parse(salvos);
-            if (Array.isArray(arr)) {
-              cabosList = arr;
-              carregou = true;
-            }
-          } catch (err) {}
-        }
+      } catch (err) {
+        cabosList = locaisSalvos;
       }
 
-      // 3. Iniciar limpo com array vazio [] (nenhum cabo colocado ainda)
-      if (!carregou || !cabosList) {
-        cabosList = [];
-      }
+      if (!cabosList) cabosList = [];
 
-      // Limpar eventuais dados fictícios de teste antigos
+      // Limpar resíduos antigos de teste com 'Severino'
       if (cabosList.length > 0 && cabosList.some(c => c.nome_cabo && c.nome_cabo.includes("Severino da Silva (Biu)"))) {
-        cabosList = [];
-        try { localStorage.removeItem("cabos_caninde_" + ano); } catch (e) {}
+        cabosList = cabosList.filter(c => !c.nome_cabo.includes("Severino da Silva (Biu)"));
+        try { localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList)); } catch (e) {}
       }
 
       const badge = document.getElementById("badgeQtdCabos");
@@ -1786,16 +1788,20 @@
 
     async function salvarCaboForm(e) {
       e.preventDefault();
-      const ano = parseInt(document.getElementById("selAno").value);
+      const ano = parseInt(document.getElementById("selAno").value) || 2026;
       const cargo = document.getElementById("selCargo").value;
       const selCand = document.getElementById("inpCaboCand");
+      if (!selCand || !selCand.value) {
+        alert("Por favor, selecione um candidato.");
+        return;
+      }
       const candNr = selCand.value;
-      const candNome = selCand.options[selCand.selectedIndex].dataset.nome || "";
+      const candNome = selCand.options[selCand.selectedIndex]?.dataset?.nome || "";
       const candCargo = selCand.options[selCand.selectedIndex]?.dataset?.cargo || (cargo === "ALL" ? "Deputado Estadual" : cargo);
 
       const selLoc = document.getElementById("inpCaboLocal");
       const locNr = selLoc.value;
-      const locNome = selLoc.options[selLoc.selectedIndex].dataset.nome || "";
+      const locNome = selLoc.options[selLoc.selectedIndex]?.dataset?.nome || "";
 
       const secaoNr = document.getElementById("inpCaboSecao").value;
       const nome = document.getElementById("inpCaboNome").value.trim();
@@ -1803,7 +1809,13 @@
       const meta = parseInt(document.getElementById("inpCaboMeta").value) || 0;
       const obs = document.getElementById("inpCaboObs").value.trim();
 
+      if (!nome) {
+        alert("Por favor, preencha o nome do cabo eleitoral.");
+        return;
+      }
+
       const payload = {
+        id: Date.now(),
         ano,
         cargo: candCargo,
         nr_candidato: candNr,
@@ -1817,6 +1829,22 @@
         observacao: obs
       };
 
+      // 1. Salvar IMEDIATAMENTE na lista ativa e no localStorage
+      cabosList.unshift(payload);
+      localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
+
+      // 2. Atualizar a tela imediatamente (renderizar card, filtros e relatório)
+      fecharModalCabo();
+      popularFiltrosCabos();
+      renderCabos();
+      renderRelatorio();
+      const badge = document.getElementById("badgeQtdCabos");
+      if (badge) badge.textContent = cabosList.length;
+      const badgeNav = document.getElementById("badgeNavCabos");
+      if (badgeNav) badgeNav.textContent = cabosList.length;
+      setTab("cabos");
+
+      // 3. Sincronizar em background com a API (sem recarregar nem apagar a tela)
       try {
         const resp = await fetch("/api/cabos", {
           method: "POST",
@@ -1825,25 +1853,29 @@
         });
         if (resp.ok) {
           const res = await resp.json();
-          payload.id = res.id;
-        } else {
-          throw new Error("API Offline");
+          if (res && res.id) {
+            payload.id = res.id;
+            localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
+          }
         }
       } catch (err) {
-        payload.id = Date.now();
+        console.warn("API offline - registro mantido localmente com sucesso:", err);
       }
-
-      cabosList.unshift(payload);
-      localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
-
-      fecharModalCabo();
-      carregarCabos();
-      setTab("cabos");
     }
 
     async function excluirCabo(id) {
       if (!confirm("Deseja realmente remover este cabo eleitoral?")) return;
-      const ano = parseInt(document.getElementById("selAno").value);
+      const ano = parseInt(document.getElementById("selAno").value) || 2026;
+      cabosList = cabosList.filter(c => c.id !== id);
+      localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
+      popularFiltrosCabos();
+      renderCabos();
+      renderRelatorio();
+      const badge = document.getElementById("badgeQtdCabos");
+      if (badge) badge.textContent = cabosList.length;
+      const badgeNav = document.getElementById("badgeNavCabos");
+      if (badgeNav) badgeNav.textContent = cabosList.length;
+
       try {
         await fetch("/api/cabos/delete", {
           method: "POST",
@@ -1851,10 +1883,6 @@
           body: JSON.stringify({ id: id })
         });
       } catch (e) {}
-
-      cabosList = cabosList.filter(c => c.id !== id);
-      localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
-      carregarCabos();
     }
 
     // ==========================================
