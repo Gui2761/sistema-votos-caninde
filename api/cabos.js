@@ -1,14 +1,7 @@
 // api/cabos.js - Vercel Serverless Function para Gestão de Cabos de Canindé de São Francisco
 // Suporta persistência automática na nuvem com Vercel KV (Redis) ou fallback instantâneo com base oficial
 
-const CABOS_OFICIAIS = [
-  { id: 1, ano: 2026, cargo: "Deputado Estadual", nr_candidato: "44111", nm_candidato: "MARCELO OLIVEIRA SOBRAL", nr_local: "1090", local_nome: "Escola Municipal Agrovila", nr_secao: "85", nome_cabo: "Severino da Silva (Biu)", telefone: "(79) 99881-2233", meta_votos: 50, observacao: "Liderança central no Povoado Agrovila" },
-  { id: 2, ano: 2026, cargo: "Deputado Estadual", nr_candidato: "44111", nm_candidato: "MARCELO OLIVEIRA SOBRAL", nr_local: "1112", local_nome: "EMEF Maria do Carmo", nr_secao: "1", nome_cabo: "Dona Raimunda Santos", telefone: "(79) 99912-3344", meta_votos: 45, observacao: "Coordenação de mobilização no Centro" },
-  { id: 3, ano: 2026, cargo: "Deputado Estadual", nr_candidato: "44000", nm_candidato: "LIDIANE CECÍLIA LUCENA", nr_local: "1090", local_nome: "Escola Municipal Agrovila", nr_secao: "94", nome_cabo: "Marcos Antônio de Jesus", telefone: "(79) 99877-4455", meta_votos: 35, observacao: "Apoio comunitário Bloco B" },
-  { id: 4, ano: 2026, cargo: "Deputado Federal", nr_candidato: "4444", nm_candidato: "YANDRA BARRETO FERREIRA", nr_local: "1031", local_nome: "EMEF Domingos Gerônimo", nr_secao: "3", nome_cabo: "Cláudio do Capim Grosso", telefone: "(79) 99122-8899", meta_votos: 80, observacao: "Mobilizador regional Capim Grosso" },
-  { id: 5, ano: 2026, cargo: "Governador", nr_candidato: "55", nm_candidato: "FABIO CRUZ MITIDIERI", nr_local: "1023", local_nome: "Colégio Estadual Delmiro Gouveia", nr_secao: "53", nome_cabo: "José Carlos (Zé do Posto)", telefone: "(79) 98833-1122", meta_votos: 100, observacao: "Articulador comercial Bairro Olaria" },
-  { id: 6, ano: 2026, cargo: "Senador", nr_candidato: "131", nm_candidato: "ROGERIO CARVALHO SANTOS", nr_local: "1015", local_nome: "Escola Estadual Dom Juvêncio", nr_secao: "9", nome_cabo: "Professora Rita de Cássia", telefone: "(79) 99655-4433", meta_votos: 70, observacao: "Movimento Educação e Assentamentos" }
-];
+const CABOS_OFICIAIS = [];
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -54,9 +47,8 @@ export default async function handler(req, res) {
 
   if (req.method === "GET") {
     let cabos = await getFromKV();
-    if (!cabos || !Array.isArray(cabos) || cabos.length === 0) {
-      cabos = CABOS_OFICIAIS;
-      await saveToKV(cabos);
+    if (!cabos || !Array.isArray(cabos)) {
+      cabos = [];
     }
     const ano = parseInt(req.query ? req.query.ano : 2026) || 2026;
     const filtrados = cabos.filter(c => !c.ano || c.ano === ano);
