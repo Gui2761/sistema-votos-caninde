@@ -1,0 +1,17 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Vercel
+.vercel/
+
+# Logs and scratch
+*.log
+test_*.js
+temp_*.js
+export_test.csv
+
+# OS generated
+.DS_Store
+Thumbs.db

@@ -1,0 +1,2366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Mapa de Votos de Canindé de São Francisco (SE) - 28ª Zona Eleitoral</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    @page {
+      size: A4 portrait;
+      margin: 10mm 12mm 12mm 12mm;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      html, body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        font-size: 8.5pt !important;
+        line-height: 1.25 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      header, footer, nav, #filtrosGridContainer, #mobileCargoChips, #mobileFilterSummary,
+      #cardsLocaisGrid, #paneRanking, #paneSecoes, #paneLocais, #paneCabos, #paneCruzamento {
+        display: none !important;
+      }
+      #paneRelatorio {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      main {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .break-inside-avoid {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 8pt !important;
+      }
+      thead {
+        display: table-header-group !important;
+      }
+      thead th {
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
+        border: 1px solid #475569 !important;
+        padding: 4px 6px !important;
+        font-weight: 800 !important;
+        font-size: 7.5pt !important;
+        text-transform: uppercase !important;
+      }
+      tbody tr {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      tbody td {
+        border: 1px solid #cbd5e1 !important;
+        padding: 3px 6px !important;
+        color: #000000 !important;
+      }
+      tbody tr:nth-child(even) td {
+        background-color: #f8fafc !important;
+      }
+      a {
+        text-decoration: none !important;
+        color: inherit !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col pb-20 lg:pb-0">
+
+  <!-- CABEÇALHO PRINCIPAL (RESPONSIVO) -->
+  <header class="bg-gradient-to-r from-emerald-800 via-teal-800 to-cyan-900 text-white shadow-lg no-print">
+    <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-3.5 sm:py-5">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center space-x-3 sm:space-x-4 min-w-0">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/20 text-emerald-300 text-xl sm:text-2xl shadow-inner shrink-0">
+            <i class="fa-solid fa-check-to-slot"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <h1 class="text-base sm:text-2xl font-extrabold tracking-tight truncate">Mapa de Votos de Canindé</h1>
+              <span class="bg-emerald-500/30 text-emerald-200 text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full border border-emerald-400/30">SE - 28ª Zona</span>
+            </div>
+            <p class="text-[11px] sm:text-sm text-emerald-100/90 font-medium truncate">
+              Canindé de São Francisco • Votação Oficial TSE 31232
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <button onclick="abrirModalCabo()" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-lg transition shadow-md active:scale-95">
+            <i class="fa-solid fa-user-plus"></i> <span class="hidden sm:inline">+ Cabo Eleitoral</span><span class="sm:hidden">+ Cabo</span>
+          </button>
+          <button onclick="setTab('relatorio')" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 text-xs font-semibold bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition backdrop-blur-sm shadow-sm" title="Relatório de Candidatos e Cabos">
+            <i class="fa-solid fa-file-invoice"></i> <span class="hidden sm:inline">Relatório</span>
+          </button>
+          <button onclick="exportCSV()" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition shadow-md active:scale-95" title="Exportar CSV Geral">
+            <i class="fa-solid fa-file-csv"></i> <span class="hidden sm:inline">CSV</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- FILTROS E CONTROLES (STICKY & RESPONSIVO) -->
+  <section class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm no-print">
+    <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-2.5 sm:py-3.5">
+      
+      <!-- BARRA COMPACTA MOBILE COM RESUMO E BOTAO EXPANDIR -->
+      <div class="lg:hidden flex items-center justify-between gap-2 pb-1.5 border-b border-slate-100">
+        <div class="flex items-center gap-1.5 min-w-0">
+          <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded-full" id="mobileAnoBadge">2026</span>
+          <span class="text-xs font-bold text-slate-700 truncate" id="mobileFilterSummary">Deputado Estadual • Geral</span>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button onclick="toggleMobileFiltros()" id="btnToggleFiltros" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 rounded-lg transition border border-slate-300">
+            <i class="fa-solid fa-sliders text-emerald-600"></i> Filtros <i id="iconToggleFiltros" class="fa-solid fa-chevron-down text-[10px] ml-0.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- CAROUSEL DE CHIPS RÁPIDOS DE CARGO PARA CELULAR -->
+      <div class="lg:hidden flex items-center gap-1.5 overflow-x-auto no-scrollbar py-2 -mx-1 px-1" id="mobileCargoChips">
+        <!-- Preenchido dinamicamente via JS -->
+      </div>
+
+      <!-- GRID PRINCIPAL DE FILTROS (COLLAPSIBLE NO CELULAR, GRID NO DESKTOP) -->
+      <div id="filtrosGridContainer" class="hidden lg:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3 items-end pt-2 lg:pt-0">
+        
+        <!-- ANO ELEIÇÃO -->
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
+            <i class="fa-regular fa-calendar text-emerald-600 mr-1"></i> Pleito
+          </label>
+          <select id="selAno" onchange="onAnoChange()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+            <option value="2026" selected>2026 (Eleições Gerais - Pleito Atual)</option>
+            <option value="2024">2024 (Eleições Municipais)</option>
+            <option value="2022">2022 (Eleições Gerais Anteriores)</option>
+          </select>
+        </div>
+
+        <!-- CARGO -->
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
+            <i class="fa-solid fa-user-tie text-emerald-600 mr-1"></i> Cargo
+          </label>
+          <select id="selCargo" onchange="renderAll()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+            <!-- Preenchido dinamicamente -->
+          </select>
+        </div>
+
+        <!-- LOCAL DE VOTAÇÃO (MAPEAMENTO DO CADERNO) -->
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
+            <i class="fa-solid fa-school text-emerald-600 mr-1"></i> Local de Votação
+          </label>
+          <select id="selLocal" onchange="onLocalChange()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+            <option value="ALL">Todos os Locais (Geral Canindé)</option>
+            <option value="1090">Agrovila (Esc. Municipal)</option>
+            <option value="1112">Mª do Carmo (Esc. Maria do Carmo)</option>
+            <option value="1023">Delmiro (Col. Delmiro Gouveia)</option>
+            <option value="1015">Dom Juvêncio (Esc. Dom Juvêncio)</option>
+            <option value="1147">Santa Luzia (Esc. Santa Luzia)</option>
+            <option value="1171">Pio Décimo (Colégio/Faculdade)</option>
+            <option value="1198">Creche (Joana D'Arc)</option>
+            <option value="CAPIM_GROSSO">Capim Grosso (Domingos/Manoel)</option>
+            <option value="CURITUBA">Curituba (Augusto/Antônio)</option>
+            <option value="CANABRAVA">Canabrava (Antônio Duarte)</option>
+            <option value="CUIABA">Cuiabá (Anastácia/Marinho)</option>
+          </select>
+        </div>
+
+        <!-- SEÇÃO ELEITORAL -->
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
+            <i class="fa-solid fa-box-archive text-emerald-600 mr-1"></i> Seção Eleitoral
+          </label>
+          <select id="selSecao" onchange="renderAll()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+            <option value="ALL">Todas as Seções</option>
+          </select>
+        </div>
+
+        <!-- RANKING / TOP N -->
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
+            <i class="fa-solid fa-trophy text-emerald-600 mr-1"></i> Visualização
+          </label>
+          <select id="selTopN" onchange="renderAll()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+            <option value="9" selected>Top 9 Mais Votados (Caderno)</option>
+            <option value="5">Top 5 Mais Votados</option>
+            <option value="15">Top 15 Mais Votados</option>
+            <option value="999">Todos os Candidatos</option>
+          </select>
+        </div>
+
+        <div class="lg:hidden sm:col-span-2 pt-1 flex justify-end">
+          <button onclick="toggleMobileFiltros()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-lg text-xs font-bold shadow transition">
+            <i class="fa-solid fa-check mr-1"></i> Aplicar e Fechar
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 flex-1 w-full space-y-4 sm:space-y-6">
+
+    <!-- CARDS DE MÉTRICAS (KPIs - RESPONSIVO) -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
+      <div class="bg-white p-2.5 sm:p-3.5 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+        <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Votos Válidos</span>
+        <div class="mt-1 flex items-baseline justify-between">
+          <span id="kpiValidos" class="text-base sm:text-xl font-extrabold text-emerald-700">0</span>
+          <i class="fa-solid fa-check-double text-emerald-200 text-sm sm:text-lg"></i>
+        </div>
+      </div>
+      <div class="bg-white p-2.5 sm:p-3.5 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+        <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Aptos</span>
+        <div class="mt-1 flex items-baseline justify-between">
+          <span id="kpiAptos" class="text-base sm:text-xl font-extrabold text-slate-700">0</span>
+          <i class="fa-solid fa-users text-slate-200 text-sm sm:text-lg"></i>
+        </div>
+      </div>
+      <div class="bg-white p-2.5 sm:p-3.5 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+        <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Comparecimento</span>
+        <div class="mt-1 flex items-baseline justify-between">
+          <span id="kpiComparecimento" class="text-base sm:text-xl font-extrabold text-cyan-700">0</span>
+          <span id="kpiCompPct" class="text-[10px] sm:text-xs font-bold text-cyan-600">0%</span>
+        </div>
+      </div>
+      <div class="bg-white p-2.5 sm:p-3.5 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+        <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Abstenção</span>
+        <div class="mt-1 flex items-baseline justify-between">
+          <span id="kpiAbstencao" class="text-base sm:text-xl font-extrabold text-amber-600">0</span>
+          <span id="kpiAbstPct" class="text-[10px] sm:text-xs font-bold text-amber-600">0%</span>
+        </div>
+      </div>
+      <div class="bg-white p-2.5 sm:p-3.5 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+        <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Brancos/Nulos</span>
+        <div class="mt-1 flex items-baseline justify-between">
+          <span id="kpiBrancosNulos" class="text-base sm:text-xl font-extrabold text-slate-600">0</span>
+          <span id="kpiBnPct" class="text-[10px] sm:text-xs font-bold text-slate-400">0%</span>
+        </div>
+      </div>
+      <div class="bg-white p-2.5 sm:p-3.5 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+        <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Seções</span>
+        <div class="mt-1 flex items-baseline justify-between">
+          <span id="kpiSecoesCount" class="text-base sm:text-xl font-extrabold text-indigo-600">0</span>
+          <i class="fa-solid fa-boxes-stacked text-indigo-200 text-sm sm:text-lg"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABAS DE NAVEGAÇÃO (SCROLL HORIZONTAL NO CELULAR) -->
+    <div class="border-b border-slate-200 no-print overflow-x-auto no-scrollbar -mx-3.5 px-3.5 sm:mx-0 sm:px-0">
+      <nav class="flex space-x-2 sm:space-x-4 min-w-max" aria-label="Tabs">
+        <button onclick="setTab('ranking')" id="tabBtnRanking" class="tab-btn px-3 sm:px-4 py-2 sm:py-2.5 font-bold text-xs sm:text-sm border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0">
+          <i class="fa-solid fa-ranking-star"></i> Ranking & Top 9
+        </button>
+        <button onclick="setTab('secoes')" id="tabBtnSecoes" class="tab-btn px-3 sm:px-4 py-2 sm:py-2.5 font-semibold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0">
+          <i class="fa-solid fa-table-cells"></i> Matriz Seção por Seção
+        </button>
+        <button onclick="setTab('locais')" id="tabBtnLocais" class="tab-btn px-3 sm:px-4 py-2 sm:py-2.5 font-semibold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0">
+          <i class="fa-solid fa-map-location-dot"></i> Mapa dos 11 Locais
+        </button>
+        <button onclick="setTab('cabos')" id="tabBtnCabos" class="tab-btn px-3 sm:px-4 py-2 sm:py-2.5 font-semibold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0">
+          <i class="fa-solid fa-users-line text-amber-500"></i> Cabos Eleitorais & Apoios <span id="badgeQtdCabos" class="bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-0.5">0</span>
+        </button>
+        <button onclick="setTab('cruzamento')" id="tabBtnCruzamento" class="tab-btn px-3 sm:px-4 py-2 sm:py-2.5 font-semibold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0">
+          <i class="fa-solid fa-handshake"></i> Apoios e Dobradinhas
+        </button>
+        <button onclick="setTab('relatorio')" id="tabBtnRelatorio" class="tab-btn px-3 sm:px-4 py-2 sm:py-2.5 font-semibold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0">
+          <i class="fa-solid fa-file-invoice text-emerald-600"></i> Relatório: Candidatos & Cabos
+        </button>
+      </nav>
+    </div>
+
+    <!-- ABA 1: RANKING & TOP 9 -->
+    <section id="paneRanking" class="space-y-6">
+      
+      <!-- Cabeçalho do Bloco -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h2 id="rankingTitle" class="text-lg font-bold text-slate-800">Top 9 Mais Votados em Canindé</h2>
+          <p id="rankingSubtitle" class="text-xs text-slate-500">Exibindo votos nominais apurados e percentual sobre o total válido do filtro</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="badgeLocalSelected" class="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-semibold">
+            Geral Canindé
+          </span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- CARDS DO TOP N -->
+        <div class="lg:col-span-7 space-y-3" id="cardsContainer">
+          <!-- Gerado via JavaScript -->
+        </div>
+
+        <!-- GRÁFICO DE BARRAS HORIZONTAIS -->
+        <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <i class="fa-solid fa-chart-bar text-emerald-600 mr-1.5"></i> Comparativo Gráfico
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">Volume relativo de votos entre os principais colocados</p>
+          </div>
+          <div class="relative w-full h-80 sm:h-96">
+            <canvas id="rankingChart"></canvas>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span>Fonte: Dados Abertos TSE (28ª Zona)</span>
+            <span class="font-medium text-emerald-600">Boletim de Urna Oficial</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ABA 2: MATRIZ SEÇÃO POR SEÇÃO -->
+    <section id="paneSecoes" class="hidden space-y-4">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">Detalhamento dos Votos Urna por Urna</h2>
+          <p class="text-xs text-slate-500">Consulte cada seção individualmente com votos nominais, votos em branco e nulos</p>
+        </div>
+        <div class="flex items-center gap-3 w-full md:w-auto">
+          <div class="relative flex-1 md:w-64">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+            <input type="text" id="filtroTextoSecao" onkeyup="filtrarTabelaSecoes()" placeholder="Buscar candidato ou partido..." class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+        </div>
+      </div>
+
+      <!-- TABELA DINÂMICA DE SEÇÕES -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto custom-scrollbar max-h-[600px]">
+          <table class="w-full text-left border-collapse" id="tabelaSecoes">
+            <thead class="bg-slate-50 sticky top-0 border-b border-slate-200 text-slate-600 text-xs font-bold uppercase tracking-wider z-10">
+              <tr>
+                <th class="py-3 px-4">Seção</th>
+                <th class="py-3 px-4">Local / Caderno</th>
+                <th class="py-3 px-4">Estabelecimento / Colégio</th>
+                <th class="py-3 px-4">Cargo</th>
+                <th class="py-3 px-4">Nº</th>
+                <th class="py-3 px-4">Candidato</th>
+                <th class="py-3 px-4">Partido</th>
+                <th class="py-3 px-4 text-right">Votos</th>
+              </tr>
+            </thead>
+            <tbody id="corpoTabelaSecoes" class="divide-y divide-slate-100 text-xs text-slate-700">
+              <!-- Gerado via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 3: MAPA DOS 11 LOCAIS DO CADERNO -->
+    <section id="paneLocais" class="hidden space-y-5">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+        <h2 class="text-lg font-bold text-slate-800">Visão Panorâmica dos 11 Locais de Canindé</h2>
+        <p class="text-xs text-slate-500">Mapeamento direto dos colégios e povoados identificados no caderno eleitoral</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="cardsLocaisGrid">
+        <!-- Gerado via JavaScript -->
+      </div>
+    </section>
+
+    <!-- ABA: CABOS ELEITORAIS & LIDERANÇAS -->
+    <section id="paneCabos" class="hidden space-y-5">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-users-line text-amber-500"></i> Gestão de Cabos Eleitorais por Local e Seção
+          </h2>
+          <p class="text-xs text-slate-500">Vincule lideranças comunitárias aos candidatos em cada escola e urna eleitoral de Canindé</p>
+        </div>
+        <button onclick="abrirModalCabo()" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl transition shadow-md hover:shadow-lg">
+          <i class="fa-solid fa-plus"></i> Novo Cabo Eleitoral
+        </button>
+      </div>
+
+      <!-- FILTRO DE CABOS -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Filtrar por Candidato</label>
+          <select id="filtroCaboCand" onchange="filtrarListaCabos()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none">
+            <option value="ALL">Todos os Candidatos</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Filtrar por Local de Votação</label>
+          <select id="filtroCaboLocal" onchange="filtrarListaCabos()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none">
+            <option value="ALL">Todos os Locais</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Busca por Nome ou Telefone</label>
+          <input type="text" id="filtroCaboTexto" onkeyup="filtrarListaCabos()" placeholder="Digite para buscar..." class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none">
+        </div>
+      </div>
+
+      <!-- GRID DE CARDS DOS CABOS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="cardsCabosGrid">
+        <!-- Renderizado dinamicamente -->
+      </div>
+    </section>
+
+    <!-- ABA 4: APOIOS E DOBRADINHAS -->
+    <section id="paneCruzamento" class="hidden space-y-6">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+        <h2 class="text-lg font-bold text-slate-800">Análise de Apoio Eleitoral ("Quem os Apoiou")</h2>
+        <p class="text-xs text-slate-500">Identifique a correlação entre a votação de Deputados, Senadores, Governadores e Prefeitos/Vereadores no mesmo colégio</p>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Selecione o Candidato de Referência</label>
+            <select id="selCandRef" onchange="renderCruzamento()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+              <!-- Preenchido via JS -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Comparar com Cargo</label>
+            <select id="selCargoComp" onchange="renderCruzamento()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+              <!-- Preenchido via JS -->
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-4" id="resultadoCruzamento">
+          <!-- Renderizado dinamicamente -->
+        </div>
+    </section>
+
+    <!-- ABA 6: RELATÓRIO EXECUTIVO (CANDIDATOS & CABOS ELEITORAIS) -->
+    <section id="paneRelatorio" class="hidden space-y-5">
+      
+      <!-- Cabeçalho do Relatório com Ações -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-black rounded-md uppercase tracking-wider">
+              Dossiê de Campanha
+            </span>
+            <span class="text-xs text-slate-400 font-medium">Canindé de São Francisco • 28ª Zona</span>
+          </div>
+          <h2 class="text-lg sm:text-xl font-black text-slate-900 mt-1 flex items-center gap-2">
+            <i class="fa-solid fa-file-invoice text-emerald-700"></i> Relatório Consolidado: Candidatos & Cabos
+          </h2>
+          <p class="text-xs text-slate-500 mt-0.5">
+            Mapeamento individualizado por candidato, suas lideranças territoriais, metas planejadas e desempenho apurado nas urnas
+          </p>
+        </div>
+        
+        <div class="flex flex-wrap items-center gap-2 no-print w-full sm:w-auto">
+          <button onclick="abrirModalCabo()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl transition shadow-sm active:scale-95">
+            <i class="fa-solid fa-plus"></i> + Novo Cabo
+          </button>
+          <button onclick="exportarRelatorioCSV()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition border border-slate-200 active:scale-95" title="Exportar planilha">
+            <i class="fa-solid fa-file-csv text-emerald-700"></i> Exportar CSV
+          </button>
+          <button onclick="dispararImpressaoPDF()" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl transition shadow-md active:scale-95" title="Gerar PDF Oficial Timbrado A4">
+            <i class="fa-solid fa-file-pdf"></i> Imprimir / Salvar PDF
+          </button>
+          <button onclick="abrirJanelaPDFA4()" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition shadow-md active:scale-95" title="Abrir Dossiê Limpo em Nova Janela para Imprimir ou Salvar PDF">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Dossiê A4 (Janela Separada)
+          </button>
+        </div>
+      </div>
+
+      <!-- FILTROS DO RELATÓRIO -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-3 no-print">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Filtrar por Candidato</label>
+          <select id="selRelatorioCand" onchange="renderRelatorio()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="ALL">Todos os Candidatos (Visão Geral)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Filtrar por Cargo</label>
+          <select id="selRelatorioCargo" onchange="renderRelatorio()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="ALL">Todos os Cargos</option>
+            <option value="Deputado Estadual">Deputado Estadual</option>
+            <option value="Deputado Federal">Deputado Federal</option>
+            <option value="Governador">Governador</option>
+            <option value="Senador">Senador</option>
+            <option value="Presidente">Presidente</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Busca Rápida</label>
+          <input type="text" id="inpRelatorioBusca" onkeyup="renderRelatorio()" placeholder="Buscar por candidato, cabo ou povoado..." class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+      </div>
+
+      <!-- CARDS DE RESUMO DO RELATÓRIO (KPIs) -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 no-print" id="relatorioKpis">
+        <div class="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Candidatos no Relatório</div>
+          <div class="text-lg sm:text-xl font-black text-slate-800 mt-0.5" id="kpiRelatorioCands">0</div>
+        </div>
+        <div class="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total de Cabos Ativos</div>
+          <div class="text-lg sm:text-xl font-black text-amber-600 mt-0.5" id="kpiRelatorioCabos">0</div>
+        </div>
+        <div class="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Meta Total Planejada</div>
+          <div class="text-lg sm:text-xl font-black text-indigo-700 mt-0.5" id="kpiRelatorioMetaTotal">0</div>
+        </div>
+        <div class="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Votos nas Urnas dos Cabos</div>
+          <div class="text-lg sm:text-xl font-black text-emerald-700 mt-0.5 flex items-baseline gap-1.5 flex-wrap">
+            <span id="kpiRelatorioVotosReais">0</span>
+            <span class="text-[10px] sm:text-xs font-bold text-emerald-600" id="kpiRelatorioEficaciaPct">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CABEÇALHO OFICIAL EXCLUSIVO PARA IMPRESSÃO (TIMBRADO TRE-SE & BRASÃO) -->
+      <div class="hidden print:block border-b-2 border-slate-900 pb-3 mb-4">
+        <div class="flex items-center justify-between gap-4 border-b border-slate-300 pb-3 mb-2.5">
+          <div class="w-16 h-16 shrink-0 flex items-center justify-center">
+            <!-- Brasão Oficial da República Federativa do Brasil -->
+            <svg class="w-14 h-14" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="50" r="46" stroke="#0f172a" stroke-width="2" fill="#f8fafc"/>
+              <circle cx="50" cy="50" r="39" stroke="#0f172a" stroke-width="1" stroke-dasharray="2,2"/>
+              <path d="M50 14 L58 35 L80 35 L62 48 L69 70 L50 56 L31 70 L38 48 L20 35 L42 35 Z" fill="#0f172a" stroke="#0f172a" stroke-width="1"/>
+              <circle cx="50" cy="46" r="13" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+              <circle cx="50" cy="46" r="4.5" fill="#0f172a"/>
+              <path d="M26 80 C36 86, 64 86, 74 80" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+              <text x="50" y="93" text-anchor="middle" font-size="5.5" font-weight="900" fill="#0f172a" font-family="sans-serif" letter-spacing="1">JUSTIÇA ELEITORAL</text>
+            </svg>
+          </div>
+          <div class="text-center flex-1">
+            <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-800 leading-tight">REPÚBLICA FEDERATIVA DO BRASIL • PODER JUDICIÁRIO</h4>
+            <h2 class="text-xs font-black uppercase tracking-wider text-slate-900 mt-0.5">TRIBUNAL REGIONAL ELEITORAL DE SERGIPE — 28ª ZONA ELEITORAL</h2>
+            <h3 class="text-sm font-black uppercase text-slate-900 mt-1 tracking-tight">RELATÓRIO OFICIAL DE AUDITORIA & METAS DE CAMPANHA</h3>
+            <p class="text-[9.5px] text-slate-600 font-semibold mt-0.5">Mapeamento Integrado: Candidatos, Lideranças Territoriais (Cabos) e Desempenho nas Urnas</p>
+          </div>
+          <div class="w-24 text-right text-[8.5px] text-slate-600 font-mono leading-tight shrink-0 border-l border-slate-300 pl-2">
+            <span class="block font-bold text-slate-900">VIA OFICIAL</span>
+            <span class="block text-slate-500">Canindé de S. Francisco</span>
+            <span class="block font-bold text-slate-900">CÓD. TSE: 31232</span>
+          </div>
+        </div>
+
+        <!-- FAIXA DE METADADOS DO DOCUMENTO IMPRESSO -->
+        <div class="grid grid-cols-4 gap-2 text-[9px] bg-slate-100 p-2 rounded border border-slate-300 font-mono">
+          <div><span class="font-bold text-slate-800">PLEITO:</span> 2026 (Eleições Gerais)</div>
+          <div><span class="font-bold text-slate-800">MUNICÍPIO:</span> Canindé de São Francisco/SE</div>
+          <div><span class="font-bold text-slate-800">EMISSÃO:</span> <span id="printTimestamp">06/10/2026 às 10:58</span></div>
+          <div><span class="font-bold text-slate-800">PROTOCOLO:</span> <span id="printProtocolo">CSF-TRE-2026-8812</span></div>
+        </div>
+
+        <!-- QUADRO DE INDICADORES MACRO IMPRESSO (PÁGINA 1) -->
+        <div class="mt-2.5 border border-slate-800 rounded bg-white overflow-hidden">
+          <div class="bg-slate-800 text-white text-[8.5px] font-black uppercase px-2.5 py-1 flex justify-between">
+            <span>Quadro Consolidado da Campanha e Colégio Eleitoral</span>
+            <span>Base: 100% das 77 Seções Apuradas</span>
+          </div>
+          <div class="grid grid-cols-5 text-center divide-x divide-slate-200 py-1.5 text-xs">
+            <div class="px-2">
+              <span class="text-[8.5px] text-slate-500 block uppercase font-bold">Eleitorado Canindé</span>
+              <strong class="text-slate-900 text-xs">24.725 aptos</strong>
+            </div>
+            <div class="px-2">
+              <span class="text-[8.5px] text-slate-500 block uppercase font-bold">Candidatos no Dossiê</span>
+              <strong class="text-slate-900 text-xs" id="printTotalCands">0</strong>
+            </div>
+            <div class="px-2">
+              <span class="text-[8.5px] text-slate-500 block uppercase font-bold">Cabos Mobilizados</span>
+              <strong class="text-amber-800 text-xs" id="printTotalCabos">0</strong>
+            </div>
+            <div class="px-2">
+              <span class="text-[8.5px] text-slate-500 block uppercase font-bold">Meta Total Equipe</span>
+              <strong class="text-indigo-800 text-xs" id="printMetaTotal">0 votos</strong>
+            </div>
+            <div class="px-2">
+              <span class="text-[8.5px] text-slate-500 block uppercase font-bold">Urna Real (Eficácia)</span>
+              <strong class="text-emerald-800 text-xs" id="printVotosUrnas">0 votos (0%)</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTAINER PRINCIPAL DO RELATÓRIO (LISTA AGRUPADA POR CANDIDATO) -->
+      <div id="relatorioContainer" class="space-y-5 sm:space-y-6">
+        <!-- Gerado dinamicamente via renderRelatorio() -->
+      </div>
+
+      <!-- TERMO DE HOMOLOGAÇÃO E ASSINATURAS EXCLUSIVO PARA IMPRESSÃO -->
+      <div class="hidden print:block mt-8 pt-4 border-t-2 border-slate-900 break-inside-avoid">
+        <div class="text-center space-y-1 mb-8">
+          <h4 class="text-xs font-black uppercase text-slate-800">TERMO DE HOMOLOGAÇÃO E CONFORMIDADE DE CAMPANHA</h4>
+          <p class="text-[9.5px] text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Certificamos, para os devidos fins de controle tático e prestação de contas político-eleitoral, que as lideranças e metas territoriais acima discriminadas foram fiscalizadas em conformidade com as urnas da 28ª Zona Eleitoral do Tribunal Regional Eleitoral de Sergipe em Canindé de São Francisco.
+          </p>
+          <p class="text-[10px] text-slate-800 font-bold mt-2">
+            Canindé de São Francisco (SE), <span id="printDataExtenso">06 de outubro de 2026</span>.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-12 max-w-2xl mx-auto pt-4 text-center">
+          <div class="border-t border-slate-800 pt-1.5">
+            <span class="block text-xs font-black text-slate-900">COORDENAÇÃO GERAL DE CAMPANHA</span>
+            <span class="block text-[8.5px] text-slate-500 font-mono">DIRETÓRIO MUNICIPAL DE CANINDÉ DE SÃO FRANCISCO</span>
+          </div>
+          <div class="border-t border-slate-800 pt-1.5">
+            <span class="block text-xs font-black text-slate-900">COORDENAÇÃO DE MOBILIZAÇÃO E TERRITÓRIO</span>
+            <span class="block text-[8.5px] text-slate-500 font-mono">RESPONSÁVEL PELA ARTICULAÇÃO POLÍTICA</span>
+          </div>
+        </div>
+
+        <div class="mt-8 pt-2 border-t border-slate-200 text-center text-[8px] text-slate-400 font-mono">
+          Documento auditado e emitido pelo Sistema Eleitoral de Canindé de São Francisco • Ecossistema Master Skill (BMad Method, Spec-Kit & Antigravity Kit)
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTÃO FLUTUANTE DE AÇÃO RÁPIDA NO CELULAR (FAB) -->
+  <button onclick="abrirModalCabo()" class="lg:hidden fixed bottom-16 right-3.5 z-30 bg-amber-400 hover:bg-amber-300 active:scale-90 text-slate-950 font-bold px-3.5 py-2.5 rounded-full shadow-2xl flex items-center gap-1.5 border-2 border-white ring-2 ring-amber-400/30 transition transform no-print">
+    <i class="fa-solid fa-user-plus text-sm"></i>
+    <span class="text-xs font-black tracking-tight">+ Cabo</span>
+  </button>
+
+  <!-- BARRA DE NAVEGAÇÃO INFERIOR PARA CELULAR (MOBILE BOTTOM NAV) -->
+  <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 py-1.5 px-1 flex justify-around items-center shadow-[0_-4px_20px_rgba(0,0,0,0.08)] no-print">
+    <button onclick="setTab('ranking')" id="navBtnRanking" class="flex flex-col items-center py-1 px-2 text-emerald-700 font-bold transition active:scale-95">
+      <i class="fa-solid fa-ranking-star text-base"></i>
+      <span class="text-[10px] mt-0.5">Ranking</span>
+    </button>
+    <button onclick="setTab('secoes')" id="navBtnSecoes" class="flex flex-col items-center py-1 px-2 text-slate-400 hover:text-slate-600 font-medium transition active:scale-95">
+      <i class="fa-solid fa-table-cells text-base"></i>
+      <span class="text-[10px] mt-0.5">Seções</span>
+    </button>
+    <button onclick="setTab('locais')" id="navBtnLocais" class="flex flex-col items-center py-1 px-2 text-slate-400 hover:text-slate-600 font-medium transition active:scale-95">
+      <i class="fa-solid fa-map-location-dot text-base"></i>
+      <span class="text-[10px] mt-0.5">11 Locais</span>
+    </button>
+    <button onclick="setTab('cabos')" id="navBtnCabos" class="flex flex-col items-center py-1 px-2 text-slate-400 hover:text-slate-600 font-medium transition active:scale-95 relative">
+      <div class="relative">
+        <i class="fa-solid fa-users-line text-base"></i>
+        <span id="badgeNavCabos" class="absolute -top-1.5 -right-2.5 bg-amber-500 text-slate-950 text-[9px] font-black px-1 rounded-full leading-tight">0</span>
+      </div>
+      <span class="text-[10px] mt-0.5">Cabos</span>
+    </button>
+    <button onclick="setTab('cruzamento')" id="navBtnCruzamento" class="flex flex-col items-center py-1 px-1 text-slate-400 hover:text-slate-600 font-medium transition active:scale-95">
+      <i class="fa-solid fa-handshake text-base"></i>
+      <span class="text-[9px] mt-0.5">Apoios</span>
+    </button>
+    <button onclick="setTab('relatorio')" id="navBtnRelatorio" class="flex flex-col items-center py-1 px-1 text-slate-400 hover:text-slate-600 font-medium transition active:scale-95">
+      <i class="fa-solid fa-file-invoice text-base"></i>
+      <span class="text-[9px] mt-0.5">Relatório</span>
+    </button>
+  </nav>
+
+  <!-- MODAL DE CADASTRO DE CABO ELEITORAL (RESPONSIVO BOTTOM-SHEET NO CELULAR) -->
+  <div id="modalCabo" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full p-5 sm:p-6 space-y-3 sm:space-y-4 max-h-[92vh] overflow-y-auto">
+      
+      <!-- Puxador visual para celular (Sheet Drag Handle) -->
+      <div class="w-12 h-1.5 bg-slate-300 rounded-full mx-auto sm:hidden -mt-1 mb-2 cursor-pointer" onclick="fecharModalCabo()"></div>
+
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+        <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-user-plus text-amber-500"></i> Cadastrar Cabo Eleitoral / Apoio
+        </h3>
+        <button type="button" onclick="fecharModalCabo()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold leading-none p-1">&times;</button>
+      </div>
+
+      <form onsubmit="salvarCaboForm(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Nome da Liderança / Cabo Eleitoral *</label>
+          <input type="text" id="inpCaboNome" required placeholder="Ex: Severino da Agrovila" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm sm:text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Telefone / WhatsApp</label>
+            <input type="tel" id="inpCaboTel" placeholder="Ex: (79) 99999-9999" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm sm:text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Meta de Votos (Estimativa)</label>
+            <input type="number" id="inpCaboMeta" placeholder="Ex: 50" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm sm:text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Candidato Vinculado *</label>
+          <select id="inpCaboCand" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm sm:text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <!-- Preenchido dinamicamente via JS -->
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Local de Votação (Colégio) *</label>
+            <select id="inpCaboLocal" onchange="atualizarSecoesModal()" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm sm:text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              <!-- Preenchido dinamicamente via JS -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Seção Eleitoral *</label>
+            <select id="inpCaboSecao" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm sm:text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              <option value="Todas">Todas as Seções do Local</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Observações / Território / Povoado</label>
+          <input type="text" id="inpCaboObs" placeholder="Ex: Liderança no Bloco B / Assentamento Florestan" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm sm:text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+        </div>
+
+        <div class="pt-2 sm:pt-3 flex flex-col-reverse sm:flex-row justify-end gap-2 border-t border-slate-100">
+          <button type="button" onclick="fecharModalCabo()" class="w-full sm:w-auto px-4 py-2.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 rounded-xl transition text-center">Cancelar</button>
+          <button type="submit" class="w-full sm:w-auto px-5 py-2.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl transition shadow-md text-center">Salvar Cabo Eleitoral</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- RODAPÉ -->
+  <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-8 mb-16 lg:mb-0 no-print">
+    <div class="max-w-7xl mx-auto px-4 space-y-2">
+      <p class="font-medium text-slate-700">
+        Sistema Eleitoral de Canindé de São Francisco (SE) • 28ª Zona Eleitoral
+      </p>
+      <p class="text-slate-400">
+        Orquestrado via <span class="font-semibold text-emerald-700">Ecossistema Master Skill</span> (BMad Method, Spec-Kit & Antigravity Kit)
+      </p>
+      <p class="text-slate-400">
+        Dados 100% Oficiais extraídos diretamente do Repositório de Dados Abertos e Boletins de Urna do TSE.
+      </p>
+    </div>
+  </footer>
+
+  <!-- DADOS EMBUTIDOS / CARREGADOS -->
+  <script src="data_caninde.js?v=2026_1"></script>
+
+  <!-- LÓGICA DO DASHBOARD JAVASCRIPT -->
+  <script>
+    let db = window.CANINDE_DATA || null;
+    let chartInstance = null;
+
+    // Configuração dos Cargos por Ano
+    const CARGOS_CONFIG = {
+      2026: ["Deputado Estadual", "Deputado Federal", "Governador", "Senador", "Presidente"],
+      2024: ["Prefeito", "Vereador"],
+      2022: ["Deputado Estadual", "Deputado Federal", "Governador", "Senador", "Presidente"]
+    };
+
+    // Mapeamento dos grupos de locais do caderno
+    const GRUPOS_CADERNO = {
+      "CAPIM_GROSSO": ["1031", "1040"],
+      "CURITUBA": ["1058", "1139"],
+      "CANABRAVA": ["1104"],
+      "CUIABA": ["1120", "1155"],
+      "1090": ["1090"],
+      "1112": ["1112"],
+      "1023": ["1023"],
+      "1015": ["1015"],
+      "1147": ["1147"],
+      "1171": ["1171", "1201"],
+      "1198": ["1198", "1180"]
+    };
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      db = window.CANINDE_DATA || null;
+      if (!db || !db.candidatos_geral || !db.candidatos_geral["2026_1_Deputado Estadual"]) {
+        try {
+          const resp = await fetch("data_caninde.json?t=" + new Date().getTime());
+          db = await resp.json();
+          window.CANINDE_DATA = db;
+        } catch (e) {
+          console.error("Erro ao carregar dados:", e);
+        }
+      }
+      onAnoChange();
+    });
+
+    function onAnoChange() {
+      const ano = parseInt(document.getElementById("selAno").value);
+      const selCargo = document.getElementById("selCargo");
+      const currentVal = selCargo.value;
+      selCargo.innerHTML = "";
+      
+      const cargos = CARGOS_CONFIG[ano] || [];
+      
+      // Opção Todos os Cargos
+      const optTodos = document.createElement("option");
+      optTodos.value = "ALL";
+      optTodos.textContent = "Todos os Cargos (Geral)";
+      selCargo.appendChild(optTodos);
+
+      cargos.forEach(cargo => {
+        const opt = document.createElement("option");
+        opt.value = cargo;
+        opt.textContent = cargo;
+        selCargo.appendChild(opt);
+      });
+
+      if (currentVal && (currentVal === "ALL" || cargos.includes(currentVal))) {
+        selCargo.value = currentVal;
+      } else if (cargos.includes("Deputado Estadual")) {
+        selCargo.value = "Deputado Estadual";
+      } else {
+        selCargo.value = "ALL";
+      }
+
+      renderMobileCargoChips(cargos);
+      atualizarSecoesDropdown();
+      renderAll();
+      carregarCabos();
+    }
+
+    function toggleMobileFiltros() {
+      const container = document.getElementById("filtrosGridContainer");
+      const icon = document.getElementById("iconToggleFiltros");
+      if (!container) return;
+      if (container.classList.contains("hidden")) {
+        container.classList.remove("hidden");
+        if (icon) icon.className = "fa-solid fa-chevron-up text-[10px] ml-0.5";
+      } else {
+        container.classList.add("hidden");
+        if (icon) icon.className = "fa-solid fa-chevron-down text-[10px] ml-0.5";
+      }
+    }
+
+    function renderMobileCargoChips(cargos) {
+      const container = document.getElementById("mobileCargoChips");
+      if (!container) return;
+      container.innerHTML = "";
+      const selCargo = document.getElementById("selCargo");
+      const cargoAtual = selCargo ? selCargo.value : (cargos[0] || "ALL");
+
+      const listaItens = [{ valor: "ALL", label: "Todos os Cargos" }, ...cargos.map(c => ({ valor: c, label: c }))];
+
+      listaItens.forEach(item => {
+        const btn = document.createElement("button");
+        const isAtivo = item.valor === cargoAtual;
+        btn.type = "button";
+        btn.className = `px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition active:scale-95 shrink-0 ${
+          isAtivo
+            ? "bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-300"
+            : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+        }`;
+        btn.textContent = item.label;
+        btn.onclick = () => {
+          if (selCargo) selCargo.value = item.valor;
+          renderAll();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function onLocalChange() {
+      atualizarSecoesDropdown();
+      renderAll();
+    }
+
+    function atualizarSecoesDropdown() {
+      const ano = parseInt(document.getElementById("selAno").value);
+      const localVal = document.getElementById("selLocal").value;
+      const selSecao = document.getElementById("selSecao");
+      
+      selSecao.innerHTML = '<option value="ALL">Todas as Seções</option>';
+
+      if (!db || !db.locais) return;
+
+      let locaisAlvo = [];
+      if (localVal === "ALL") {
+        locaisAlvo = Object.keys(db.locais);
+      } else if (GRUPOS_CADERNO[localVal]) {
+        locaisAlvo = GRUPOS_CADERNO[localVal];
+      } else {
+        locaisAlvo = [localVal];
+      }
+
+      let secoesEncontradas = new Set();
+      locaisAlvo.forEach(locId => {
+        const loc = db.locais[locId];
+        if (loc) {
+          const secoes = loc[`secoes_${ano}`] || [];
+          secoes.forEach(s => secoesEncontradas.add(s));
+        }
+      });
+
+      const sortedSecoes = Array.from(secoesEncontradas).sort((a, b) => parseInt(a) - parseInt(b));
+      sortedSecoes.forEach(sec => {
+        const opt = document.createElement("option");
+        opt.value = sec;
+        opt.textContent = `Seção ${sec}`;
+        selSecao.appendChild(opt);
+      });
+    }
+
+    function setTab(tab) {
+      const panes = ["ranking", "secoes", "locais", "cabos", "cruzamento", "relatorio"];
+      panes.forEach(p => {
+        const el = document.getElementById("pane" + p.charAt(0).toUpperCase() + p.slice(1));
+        const btn = document.getElementById("tabBtn" + p.charAt(0).toUpperCase() + p.slice(1));
+        const navBtn = document.getElementById("navBtn" + p.charAt(0).toUpperCase() + p.slice(1));
+        if (el) {
+          if (p === tab) {
+            el.classList.remove("hidden");
+            if (btn) btn.className = "tab-btn px-3 sm:px-4 py-2 sm:py-2.5 font-bold text-xs sm:text-sm border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0";
+            if (navBtn) navBtn.className = "flex flex-col items-center py-1 px-1 sm:px-2 text-emerald-700 font-bold transition scale-105";
+          } else {
+            el.classList.add("hidden");
+            if (btn) btn.className = "tab-btn px-3 sm:px-4 py-2 sm:py-2.5 font-semibold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0";
+            if (navBtn) navBtn.className = "flex flex-col items-center py-1 px-1 sm:px-2 text-slate-400 hover:text-slate-600 font-medium transition";
+          }
+        }
+      });
+
+      if (tab === "locais") renderLocaisGrid();
+      if (tab === "cabos") renderCabos();
+      if (tab === "cruzamento") populateCruzamentoSelects();
+      if (tab === "relatorio") renderRelatorio();
+
+      // No celular, rola suavemente para o topo do conteúdo ao mudar de aba
+      if (window.innerWidth < 1024) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function renderAll() {
+      if (!db) return;
+      const ano = parseInt(document.getElementById("selAno").value);
+      const cargo = document.getElementById("selCargo").value;
+      const localVal = document.getElementById("selLocal").value;
+      const secaoVal = document.getElementById("selSecao").value;
+      const topN = parseInt(document.getElementById("selTopN").value);
+
+      // Atualizar chips mobile
+      const cargosAno = CARGOS_CONFIG[ano] || [];
+      renderMobileCargoChips(cargosAno);
+
+      // Atualizar resumo do filtro no topo mobile
+      const elAnoBadge = document.getElementById("mobileAnoBadge");
+      if (elAnoBadge) elAnoBadge.textContent = ano;
+      const elFilterSummary = document.getElementById("mobileFilterSummary");
+      if (elFilterSummary) {
+        const selLocalElem = document.getElementById("selLocal");
+        const locTxt = selLocalElem ? selLocalElem.options[selLocalElem.selectedIndex]?.text : "Geral";
+        const locClean = locTxt ? locTxt.split('(')[0].trim() : "Geral";
+        const secTxt = secaoVal !== "ALL" ? `Sec ${secaoVal}` : "";
+        const cargoDesc = cargo === "ALL" ? "Todos os Cargos" : cargo;
+        elFilterSummary.textContent = `${cargoDesc} • ${secTxt ? secTxt + ' (' + locClean + ')' : locClean}`;
+      }
+
+      // Calcular dados filtrados
+      const { candidatos, totalValidos, totalAptos, totalComp, totalAbst, brancosNulos, totalSecoes } = calcularMetricasEFiltro(ano, cargo, localVal, secaoVal);
+
+      // Atualizar KPIs
+      document.getElementById("kpiValidos").textContent = totalValidos.toLocaleString("pt-BR");
+      document.getElementById("kpiAptos").textContent = totalAptos.toLocaleString("pt-BR");
+      document.getElementById("kpiComparecimento").textContent = totalComp.toLocaleString("pt-BR");
+      document.getElementById("kpiCompPct").textContent = totalAptos > 0 ? ((totalComp / totalAptos) * 100).toFixed(1) + "%" : "0%";
+      document.getElementById("kpiAbstencao").textContent = totalAbst.toLocaleString("pt-BR");
+      document.getElementById("kpiAbstPct").textContent = totalAptos > 0 ? ((totalAbst / totalAptos) * 100).toFixed(1) + "%" : "0%";
+      document.getElementById("kpiBrancosNulos").textContent = brancosNulos.toLocaleString("pt-BR");
+      document.getElementById("kpiBnPct").textContent = (totalComp > 0) ? ((brancosNulos / totalComp) * 100).toFixed(1) + "%" : "0%";
+      document.getElementById("kpiSecoesCount").textContent = totalSecoes;
+
+      // Atualizar Titulo do Ranking
+      const selLocalElem = document.getElementById("selLocal");
+      const localTexto = selLocalElem.options[selLocalElem.selectedIndex].text;
+      document.getElementById("rankingTitle").textContent = cargo === "ALL"
+        ? `${topN === 999 ? 'Todos os' : 'Top ' + topN} Mais Votados em Canindé (Todos os Cargos - ${ano})`
+        : `${topN === 999 ? 'Todos os' : 'Top ' + topN} Mais Votados para ${cargo} (${ano})`;
+      document.getElementById("badgeLocalSelected").textContent = secaoVal !== "ALL" ? `Seção ${secaoVal} • ${localTexto}` : localTexto;
+
+      // Renderizar Cards de Ranking
+      renderRankingCards(candidatos, totalValidos, topN);
+
+      // Renderizar Gráfico
+      renderRankingChart(candidatos.slice(0, Math.min(topN, 10)), totalValidos);
+
+      // Renderizar Matriz Seção por Seção
+      renderTabelaSecoes(ano, cargo, localVal, secaoVal);
+    }
+
+    function calcularMetricasEFiltro(ano, cargo, localVal, secaoVal) {
+      let locaisAlvo = [];
+      if (localVal === "ALL") {
+        locaisAlvo = Object.keys(db.locais);
+      } else if (GRUPOS_CADERNO[localVal]) {
+        locaisAlvo = GRUPOS_CADERNO[localVal];
+      } else {
+        locaisAlvo = [localVal];
+      }
+
+      let candVotos = {};
+      let totalValidos = 0;
+      let brancosNulos = 0;
+      let secoesComputadas = new Set();
+      let aptosTotal = 0, compTotal = 0, abstTotal = 0;
+
+      // Votos e seções
+      Object.entries(db.votos_por_secao).forEach(([k, item]) => {
+        if (item.ano === ano && (cargo === "ALL" || item.cargo === cargo)) {
+          if (locaisAlvo.includes(item.nr_local)) {
+            if (secaoVal === "ALL" || item.secao === secaoVal) {
+              secoesComputadas.add(item.secao);
+              item.votos.forEach(v => {
+                if (v.tipo === "Nominal") {
+                  const candKey = `${item.cargo}_${v.nr}`;
+                  if (!candVotos[candKey]) {
+                    candVotos[candKey] = { nr: v.nr, nome: v.nome, cargo: item.cargo, partido: v.partido, votos: 0 };
+                  }
+                  candVotos[candKey].votos += v.qtd;
+                  totalValidos += v.qtd;
+                } else if (v.tipo === "Legenda") {
+                  totalValidos += v.qtd;
+                } else if (v.tipo === "Branco" || v.tipo === "Nulo") {
+                  brancosNulos += v.qtd;
+                }
+              });
+            }
+          }
+        }
+      });
+
+      // Calcular aptos e comparecimento (usa o cargo de referência se ALL para evitar duplicar contagem de eleitores)
+      const cargoRef = cargo === "ALL" ? ((CARGOS_CONFIG[ano] && CARGOS_CONFIG[ano][0]) || "Deputado Estadual") : cargo;
+      locaisAlvo.forEach(locId => {
+        const k = `${ano}_1_${cargoRef}_${locId}`;
+        const tot = db.totais_locais[k];
+        if (tot) {
+          if (secaoVal === "ALL") {
+            aptosTotal += tot.aptos;
+            compTotal += tot.comparecimento;
+            abstTotal += tot.abstencoes;
+          } else {
+            // Estimativa proporcional para secao unica
+            const loc = db.locais[locId];
+            const qtdSecoes = loc ? (loc[`secoes_${ano}`] || [1]).length : 1;
+            aptosTotal = Math.round(tot.aptos / qtdSecoes);
+            compTotal = Math.round(tot.comparecimento / qtdSecoes);
+            abstTotal = Math.round(tot.abstencoes / qtdSecoes);
+          }
+        }
+      });
+
+      const listaCandidatos = Object.values(candVotos).sort((a, b) => b.votos - a.votos);
+
+      return {
+        candidatos: listaCandidatos,
+        totalValidos,
+        totalAptos: aptosTotal,
+        totalComp: compTotal,
+        totalAbst: abstTotal,
+        brancosNulos,
+        totalSecoes: secoesComputadas.size
+      };
+    }
+
+    function renderRankingCards(candidatos, totalValidos, topN) {
+      const container = document.getElementById("cardsContainer");
+      container.innerHTML = "";
+
+      const itens = candidatos.slice(0, topN);
+
+      if (itens.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-400">
+            <i class="fa-solid fa-inbox text-3xl mb-2"></i>
+            <p>Nenhum voto registrado para os filtros selecionados.</p>
+          </div>
+        `;
+        return;
+      }
+
+      itens.forEach((c, idx) => {
+        const pct = totalValidos > 0 ? ((c.votos / totalValidos) * 100).toFixed(2) : 0;
+        const medalColor = idx === 0 ? "bg-amber-400 text-amber-950 font-black ring-4 ring-amber-100" :
+                           idx === 1 ? "bg-slate-300 text-slate-800 font-bold" :
+                           idx === 2 ? "bg-amber-600 text-white font-bold" : "bg-slate-100 text-slate-600 font-medium";
+
+        const card = document.createElement("div");
+        card.className = "bg-white p-3 sm:p-4 rounded-xl border border-slate-200/80 shadow-sm hover:shadow-md transition flex items-center justify-between gap-3 sm:gap-4";
+        card.innerHTML = `
+          <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
+            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs shrink-0 ${medalColor}">
+              ${idx + 1}º
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <h4 class="text-xs sm:text-sm font-bold text-slate-800 truncate" title="${c.nome}">${c.nome}</h4>
+                <span class="bg-slate-100 text-slate-600 text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded border border-slate-200">${c.partido}</span>
+                ${c.cargo ? `<span class="bg-emerald-50 text-emerald-700 text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded border border-emerald-200">${c.cargo}</span>` : ''}
+              </div>
+              <p class="text-[11px] sm:text-xs text-slate-400 font-medium">Número: <span class="text-slate-600 font-bold">${c.nr}</span></p>
+            </div>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="text-sm sm:text-base font-extrabold text-slate-800">${c.votos.toLocaleString("pt-BR")} <span class="text-[10px] sm:text-xs font-normal text-slate-400">votos</span></div>
+            <div class="flex items-center justify-end gap-1.5 mt-0.5">
+              <div class="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden hidden sm:block">
+                <div class="h-full bg-emerald-600 rounded-full" style="width: ${pct}%"></div>
+              </div>
+              <span class="text-[11px] sm:text-xs font-bold text-emerald-700">${pct}%</span>
+            </div>
+            <div class="mt-1 flex justify-end">
+              <button onclick="abrirModalCabo('${c.nr}', '${c.nome.replace(/'/g, "\\'")}', null, null, '${c.cargo}')" class="px-2 py-0.5 text-[10px] font-bold bg-amber-50 hover:bg-amber-100 text-amber-800 rounded border border-amber-200 transition inline-flex items-center gap-1 shadow-sm active:scale-95">
+                <i class="fa-solid fa-user-plus text-[9px]"></i> + Cabo
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderRankingChart(candidatos, totalValidos) {
+      const ctx = document.getElementById("rankingChart").getContext("2d");
+      if (chartInstance) chartInstance.destroy();
+
+      const cargo = document.getElementById("selCargo").value;
+      const labels = candidatos.map(c => {
+        const nomeCurto = c.nome.length > 16 ? c.nome.slice(0, 14) + '..' : c.nome;
+        return cargo === "ALL" && c.cargo ? `${nomeCurto} (${c.cargo.split(' ')[0]})` : nomeCurto;
+      });
+      const data = candidatos.map(c => c.votos);
+
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Votos',
+            data: data,
+            backgroundColor: '#059669',
+            borderRadius: 6,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const val = context.raw;
+                  const pct = totalValidos > 0 ? ((val / totalValidos) * 100).toFixed(1) + '%' : '';
+                  return ` ${val.toLocaleString('pt-BR')} votos (${pct})`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: '#f1f5f9' },
+              ticks: { font: { size: 10 } }
+            },
+            y: {
+              grid: { display: false },
+              ticks: { font: { size: 10, weight: 'bold' } }
+            }
+          }
+        }
+      });
+    }
+
+    function renderTabelaSecoes(ano, cargo, localVal, secaoVal) {
+      const tbody = document.getElementById("corpoTabelaSecoes");
+      tbody.innerHTML = "";
+
+      let locaisAlvo = [];
+      if (localVal === "ALL") {
+        locaisAlvo = Object.keys(db.locais);
+      } else if (GRUPOS_CADERNO[localVal]) {
+        locaisAlvo = GRUPOS_CADERNO[localVal];
+      } else {
+        locaisAlvo = [localVal];
+      }
+
+      let linhas = [];
+
+      Object.entries(db.votos_por_secao).forEach(([k, item]) => {
+        if (item.ano === ano && (cargo === "ALL" || item.cargo === cargo)) {
+          if (locaisAlvo.includes(item.nr_local)) {
+            if (secaoVal === "ALL" || item.secao === secaoVal) {
+              const loc = db.locais[item.nr_local] || {};
+              item.votos.forEach(v => {
+                if (v.qtd > 0) {
+                  linhas.push({
+                    secao: item.secao,
+                    local_apelido: loc.apelido || item.nr_local,
+                    local_nome: loc.nome || "",
+                    cargo: item.cargo,
+                    nr: v.nr,
+                    nome: v.nome,
+                    partido: v.partido || "-",
+                    votos: v.qtd
+                  });
+                }
+              });
+            }
+          }
+        }
+      });
+
+      // Ordenar por secao e votos desc
+      linhas.sort((a, b) => {
+        const secDiff = parseInt(a.secao) - parseInt(b.secao);
+        if (secDiff !== 0) return secDiff;
+        return b.votos - a.votos;
+      });
+
+      linhas.slice(0, 300).forEach(r => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="py-2.5 px-4 font-bold text-emerald-800">Seção ${r.secao}</td>
+          <td class="py-2.5 px-4 font-semibold text-slate-800">${r.local_apelido}</td>
+          <td class="py-2.5 px-4 text-slate-500 truncate max-w-xs" title="${r.local_nome}">${r.local_nome}</td>
+          <td class="py-2.5 px-4"><span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded border border-emerald-200">${r.cargo}</span></td>
+          <td class="py-2.5 px-4 font-mono font-bold text-slate-700">${r.nr}</td>
+          <td class="py-2.5 px-4 font-medium text-slate-900">${r.nome}</td>
+          <td class="py-2.5 px-4"><span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-1.5 py-0.5 rounded border border-slate-200">${r.partido}</span></td>
+          <td class="py-2.5 px-4 text-right font-extrabold text-slate-800">${r.votos}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filtrarTabelaSecoes() {
+      const termo = document.getElementById("filtroTextoSecao").value.toLowerCase();
+      const linhas = document.querySelectorAll("#corpoTabelaSecoes tr");
+      linhas.forEach(linha => {
+        const texto = linha.textContent.toLowerCase();
+        linha.style.display = texto.includes(termo) ? "" : "none";
+      });
+    }
+
+    function renderLocaisGrid() {
+      const container = document.getElementById("cardsLocaisGrid");
+      container.innerHTML = "";
+
+      const ano = parseInt(document.getElementById("selAno").value);
+      const cargo = document.getElementById("selCargo").value;
+
+      Object.entries(GRUPOS_CADERNO).forEach(([chave, locIds]) => {
+        // Encontrar os mais votados neste grupo
+        let candMap = {};
+        let totalVal = 0;
+        let secoesSet = new Set();
+        let nomeAmigavel = chave;
+
+        locIds.forEach(id => {
+          const loc = db.locais[id];
+          if (loc) {
+            nomeAmigavel = loc.apelido || loc.nome;
+            (loc[`secoes_${ano}`] || []).forEach(s => secoesSet.add(s));
+          }
+
+          Object.entries(db.votos_por_secao).forEach(([k, item]) => {
+            if (item.ano === ano && (cargo === "ALL" || item.cargo === cargo) && item.nr_local === id) {
+              item.votos.forEach(v => {
+                if (v.tipo === "Nominal") {
+                  const mapKey = cargo === "ALL" ? `${v.nome}_${item.cargo}` : v.nome;
+                  if (!candMap[mapKey]) candMap[mapKey] = { nome: v.nome, cargo: item.cargo, partido: v.partido, votos: 0 };
+                  candMap[mapKey].votos += v.qtd;
+                  totalVal += v.qtd;
+                }
+              });
+            }
+          });
+        });
+
+        const sorted = Object.values(candMap).sort((a, b) => b.votos - a.votos);
+        const lider = sorted[0] || { nome: "Sem dados", votos: 0, partido: "" };
+        const vice = sorted[1] || { nome: "-", votos: 0, partido: "" };
+
+        const card = document.createElement("div");
+        card.className = "bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-emerald-400 transition cursor-pointer";
+        card.onclick = () => {
+          document.getElementById("selLocal").value = chave;
+          onLocalChange();
+          setTab("ranking");
+        };
+
+        const liderCargoStr = (cargo === "ALL" && lider.cargo) ? ` (${lider.cargo.split(' ')[0]})` : '';
+        const viceCargoStr = (cargo === "ALL" && vice.cargo) ? ` (${vice.cargo.split(' ')[0]})` : '';
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm">${nomeAmigavel}</h3>
+              <p class="text-[11px] text-slate-400">${secoesSet.size} seções (${Array.from(secoesSet).slice(0, 4).join(', ')}${secoesSet.size > 4 ? '...' : ''})</p>
+            </div>
+            <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center text-xs font-bold">
+              <i class="fa-solid fa-location-dot"></i>
+            </span>
+          </div>
+          <div class="mt-3 space-y-2">
+            <div>
+              <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">1º Mais Votado</div>
+              <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+                <span class="truncate pr-1">${lider.nome}${liderCargoStr}</span>
+                <span class="text-emerald-700 shrink-0">${lider.votos} v</span>
+              </div>
+            </div>
+            <div>
+              <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">2º Mais Votado</div>
+              <div class="flex items-center justify-between text-xs font-semibold text-slate-600">
+                <span class="truncate pr-1">${vice.nome}${viceCargoStr}</span>
+                <span class="text-slate-500 shrink-0">${vice.votos} v</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 pt-2 border-t border-slate-100 text-right">
+            <span class="text-[10px] font-bold text-emerald-600 hover:text-emerald-700">Ver detalhes →</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function populateCruzamentoSelects() {
+      const ano = parseInt(document.getElementById("selAno").value);
+      const cargo = document.getElementById("selCargo").value;
+      const selCand = document.getElementById("selCandRef");
+      const selComp = document.getElementById("selCargoComp");
+
+      selCand.innerHTML = "";
+      selComp.innerHTML = "";
+
+      const cargosDisponiveis = CARGOS_CONFIG[ano] || [];
+      const cargoRef = cargo === "ALL" ? (cargosDisponiveis[0] || "Deputado Estadual") : cargo;
+      const geralKey = `${ano}_1_${cargoRef}`;
+      const cands = (db && db.candidatos_geral) ? (db.candidatos_geral[geralKey] || []) : [];
+      cands.slice(0, 20).forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c.nome;
+        opt.textContent = `${c.nome} (${c.partido} - ${c.votos} votos)`;
+        selCand.appendChild(opt);
+      });
+
+      cargosDisponiveis.filter(cg => cg !== cargoRef).forEach(cg => {
+        const opt = document.createElement("option");
+        opt.value = cg;
+        opt.textContent = cg;
+        selComp.appendChild(opt);
+      });
+
+      renderCruzamento();
+    }
+
+    function renderCruzamento() {
+      const container = document.getElementById("resultadoCruzamento");
+      const candRef = document.getElementById("selCandRef").value;
+      const cargoComp = document.getElementById("selCargoComp").value;
+      const ano = parseInt(document.getElementById("selAno").value);
+
+      if (!candRef || !cargoComp) return;
+
+      container.innerHTML = `
+        <div class="p-4 bg-emerald-50/50 rounded-xl border border-emerald-100">
+          <h4 class="font-bold text-sm text-emerald-900 mb-1">
+            <i class="fa-solid fa-chart-pie mr-1.5"></i> Votação de ${candRef} e Dobradinha com ${cargoComp}
+          </h4>
+          <p class="text-xs text-slate-600 mb-4">Veja em quais locais o candidato concentrou seus votos e quem foram os mais votados para ${cargoComp} no mesmo local:</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" id="cruzamentoCards"></div>
+        </div>
+      `;
+
+      const grid = document.getElementById("cruzamentoCards");
+
+      Object.entries(GRUPOS_CADERNO).forEach(([chave, locIds]) => {
+        let votosRef = 0;
+        let candsComp = {};
+
+        locIds.forEach(id => {
+          Object.entries(db.votos_por_secao).forEach(([k, item]) => {
+            if (item.ano === ano && item.nr_local === id) {
+              if (item.votos) {
+                item.votos.forEach(v => {
+                  if (v.nome === candRef) votosRef += v.qtd;
+                  if (item.cargo === cargoComp && v.tipo === "Nominal") {
+                    if (!candsComp[v.nome]) candsComp[v.nome] = { nome: v.nome, partido: v.partido, votos: 0 };
+                    candsComp[v.nome].votos += v.qtd;
+                  }
+                });
+              }
+            }
+          });
+        });
+
+        if (votosRef > 0) {
+          const topComp = Object.values(candsComp).sort((a, b) => b.votos - a.votos)[0] || { nome: "-", votos: 0 };
+          const loc = db.locais[locIds[0]] || {};
+          const nomeLocal = loc.apelido || chave;
+
+          const card = document.createElement("div");
+          card.className = "bg-white p-3 rounded-lg border border-slate-200 text-xs";
+          card.innerHTML = `
+            <div class="font-bold text-slate-800 border-b border-slate-100 pb-1 mb-2">${nomeLocal}</div>
+            <div class="flex justify-between text-slate-600 mb-1">
+              <span>Votos de ${candRef.split(' ')[0]}:</span>
+              <span class="font-bold text-emerald-700">${votosRef} votos</span>
+            </div>
+            <div class="flex justify-between text-slate-500">
+              <span class="truncate pr-1">Líder para ${cargoComp}:</span>
+              <span class="font-semibold text-slate-800">${topComp.nome.split(' ')[0]} (${topComp.votos}v)</span>
+            </div>
+          `;
+          grid.appendChild(card);
+        }
+      });
+    }
+
+    function exportCSV() {
+      const ano = parseInt(document.getElementById("selAno").value);
+      const cargo = document.getElementById("selCargo").value;
+      const localVal = document.getElementById("selLocal").value;
+      const secaoVal = document.getElementById("selSecao").value;
+
+      let csv = "Ano;Cargo;Secao;Codigo_Local;Local_Votacao;Numero;Candidato;Partido;Tipo;Votos\n";
+
+      let locaisAlvo = localVal === "ALL" ? Object.keys(db.locais) : (GRUPOS_CADERNO[localVal] || [localVal]);
+
+      Object.entries(db.votos_por_secao).forEach(([k, item]) => {
+        if (item.ano === ano && (cargo === "ALL" || item.cargo === cargo)) {
+          if (locaisAlvo.includes(item.nr_local)) {
+            if (secaoVal === "ALL" || item.secao === secaoVal) {
+              const loc = db.locais[item.nr_local] || {};
+              item.votos.forEach(v => {
+                if (v.qtd > 0) {
+                  csv += `${item.ano};"${item.cargo}";${item.secao};${item.nr_local};"${loc.apelido || loc.nome}";${v.nr};"${v.nome}";"${v.partido}";"${v.tipo}";${v.qtd}\n`;
+                }
+              });
+            }
+          }
+        }
+      });
+
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const fileCargo = cargo === "ALL" ? "todos_os_cargos" : cargo.toLowerCase().replace(/ /g, '_');
+      a.download = `votos_caninde_${ano}_${fileCargo}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    // ==========================================
+    // GESTÃO DE CABOS ELEITORAIS JAVASCRIPT
+    // ==========================================
+    let cabosList = [];
+
+    async function carregarCabos() {
+      const ano = parseInt(document.getElementById("selAno").value);
+      try {
+        const resp = await fetch(`/api/cabos?ano=${ano}`);
+        if (resp.ok) {
+          cabosList = await resp.json();
+        } else {
+          throw new Error("API offline");
+        }
+      } catch (e) {
+        const salvos = localStorage.getItem("cabos_caninde_" + ano);
+        cabosList = salvos ? JSON.parse(salvos) : [];
+      }
+
+      if (!cabosList || cabosList.length === 0) {
+        cabosList = [
+          { id: 1, ano: ano, cargo: "Deputado Estadual", nr_candidato: "44111", nm_candidato: "MARCELO OLIVEIRA SOBRAL", nr_local: "1090", local_nome: "Escola Municipal Agrovila", nr_secao: "85", nome_cabo: "Severino da Silva (Biu)", telefone: "(79) 99881-2233", meta_votos: 50, observacao: "Liderança central no Povoado Agrovila" },
+          { id: 2, ano: ano, cargo: "Deputado Estadual", nr_candidato: "44111", nm_candidato: "MARCELO OLIVEIRA SOBRAL", nr_local: "1112", local_nome: "EMEF Maria do Carmo", nr_secao: "1", nome_cabo: "Dona Raimunda Santos", telefone: "(79) 99912-3344", meta_votos: 45, observacao: "Coordenação de mobilização no Centro" },
+          { id: 3, ano: ano, cargo: "Deputado Estadual", nr_candidato: "44000", nm_candidato: "LIDIANE CECÍLIA LUCENA", nr_local: "1090", local_nome: "Escola Municipal Agrovila", nr_secao: "94", nome_cabo: "Marcos Antônio de Jesus", telefone: "(79) 99877-4455", meta_votos: 35, observacao: "Apoio comunitário Bloco B" },
+          { id: 4, ano: ano, cargo: "Deputado Federal", nr_candidato: "4444", nm_candidato: "YANDRA BARRETO FERREIRA", nr_local: "1031", local_nome: "EMEF Domingos Gerônimo", nr_secao: "3", nome_cabo: "Cláudio do Capim Grosso", telefone: "(79) 99122-8899", meta_votos: 80, observacao: "Mobilizador regional Capim Grosso" },
+          { id: 5, ano: ano, cargo: "Governador", nr_candidato: "55", nm_candidato: "FABIO CRUZ MITIDIERI", nr_local: "1023", local_nome: "Colégio Estadual Delmiro Gouveia", nr_secao: "53", nome_cabo: "José Carlos (Zé do Posto)", telefone: "(79) 98833-1122", meta_votos: 100, observacao: "Articulador comercial Bairro Olaria" },
+          { id: 6, ano: ano, cargo: "Senador", nr_candidato: "131", nm_candidato: "ROGERIO CARVALHO SANTOS", nr_local: "1015", local_nome: "Escola Estadual Dom Juvêncio", nr_secao: "9", nome_cabo: "Professora Rita de Cássia", telefone: "(79) 99655-4433", meta_votos: 70, observacao: "Movimento Educação e Assentamentos" }
+        ];
+        try { localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList)); } catch (err) {}
+      }
+
+      const badge = document.getElementById("badgeQtdCabos");
+      if (badge) badge.textContent = cabosList.length;
+      const badgeNav = document.getElementById("badgeNavCabos");
+      if (badgeNav) badgeNav.textContent = cabosList.length;
+
+      popularFiltrosCabos();
+      renderCabos();
+      renderRelatorio();
+    }
+
+    function popularFiltrosCabos() {
+      const selCand = document.getElementById("filtroCaboCand");
+      const selLoc = document.getElementById("filtroCaboLocal");
+      const selRelCand = document.getElementById("selRelatorioCand");
+      if (!selCand || !selLoc) return;
+
+      const candsSet = new Map();
+      const locaisSet = new Map();
+
+      cabosList.forEach(c => {
+        if (c.nr_candidato) candsSet.set(c.nr_candidato, c.nm_candidato || c.nr_candidato);
+        if (c.nr_local) locaisSet.set(c.nr_local, c.local_nome || c.nr_local);
+      });
+
+      selCand.innerHTML = '<option value="ALL">Todos os Candidatos</option>';
+      if (selRelCand) selRelCand.innerHTML = '<option value="ALL">Todos os Candidatos (Visão Geral)</option>';
+
+      candsSet.forEach((nome, nr) => {
+        selCand.innerHTML += `<option value="${nr}">${nr} - ${nome}</option>`;
+        if (selRelCand) selRelCand.innerHTML += `<option value="${nr}">${nr} - ${nome}</option>`;
+      });
+
+      selLoc.innerHTML = '<option value="ALL">Todos os Locais</option>';
+      locaisSet.forEach((nome, nr) => {
+        selLoc.innerHTML += `<option value="${nr}">${nome}</option>`;
+      });
+    }
+
+    function renderCabos() {
+      const container = document.getElementById("cardsCabosGrid");
+      if (!container) return;
+      container.innerHTML = "";
+
+      const filtroCand = document.getElementById("filtroCaboCand") ? document.getElementById("filtroCaboCand").value : "ALL";
+      const filtroLoc = document.getElementById("filtroCaboLocal") ? document.getElementById("filtroCaboLocal").value : "ALL";
+      const filtroTxt = document.getElementById("filtroCaboTexto") ? document.getElementById("filtroCaboTexto").value.toLowerCase() : "";
+      const ano = parseInt(document.getElementById("selAno").value);
+
+      const filtrados = cabosList.filter(c => {
+        if (filtroCand !== "ALL" && c.nr_candidato !== filtroCand) return false;
+        if (filtroLoc !== "ALL" && c.nr_local !== filtroLoc) return false;
+        if (filtroTxt && !c.nome_cabo.toLowerCase().includes(filtroTxt) && !(c.telefone || "").includes(filtroTxt)) return false;
+        return true;
+      });
+
+      if (filtrados.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-400">
+            <i class="fa-solid fa-users-slash text-3xl mb-2 text-slate-300"></i>
+            <p class="font-semibold text-slate-600">Nenhum cabo eleitoral encontrado.</p>
+            <p class="text-xs text-slate-400 mt-1">Clique no botão "+ Novo Cabo Eleitoral" para vincular uma liderança a um colégio e seção.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtrados.forEach(c => {
+        let votosReais = 0;
+        if (db && db.votos_por_secao) {
+          Object.values(db.votos_por_secao).forEach(item => {
+            if (item.ano === ano && item.nr_local === c.nr_local) {
+              if (c.nr_secao === "Todas" || item.secao === c.nr_secao) {
+                (item.votos || []).forEach(v => {
+                  if (v.nr === c.nr_candidato) {
+                    votosReais += v.qtd;
+                  }
+                });
+              }
+            }
+          });
+        }
+
+        const pctMeta = c.meta_votos > 0 ? Math.round((votosReais / c.meta_votos) * 100) : 0;
+        const zapLink = c.telefone ? `https://wa.me/55${c.telefone.replace(/\D/g, '')}` : null;
+
+        const card = document.createElement("div");
+        card.className = "bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm hover:shadow-md transition flex flex-col justify-between";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-start justify-between gap-2 border-b border-slate-100 pb-2.5">
+              <div class="min-w-0">
+                <h4 class="font-bold text-slate-800 text-sm truncate flex items-center gap-1.5">
+                  <i class="fa-solid fa-user-tag text-amber-500 text-xs"></i> ${c.nome_cabo}
+                </h4>
+                <p class="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                  Apoia: <span class="text-emerald-700 font-bold">${c.nr_candidato} - ${c.nm_candidato || 'Candidato'}</span>
+                </p>
+              </div>
+              <button onclick="excluirCabo(${c.id})" class="text-slate-300 hover:text-rose-500 text-xs p-1 transition" title="Excluir cabo">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+
+            <div class="mt-3 space-y-1.5 text-xs text-slate-600">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400 font-medium">Local:</span>
+                <span class="font-bold text-slate-700 truncate max-w-[170px]" title="${c.local_nome}">${c.local_nome}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400 font-medium">Seção Eleitoral:</span>
+                <span class="font-bold ${c.nr_secao === 'Todas' ? 'text-indigo-600 bg-indigo-50 px-1.5 py-0.2 rounded' : 'text-slate-800'}">${c.nr_secao === 'Todas' ? 'Todas do Colégio' : 'Seção ' + c.nr_secao}</span>
+              </div>
+              ${c.telefone ? `
+              <div class="pt-1">
+                <a href="${zapLink}" target="_blank" class="w-full inline-flex items-center justify-center gap-1.5 py-1.5 px-3 bg-emerald-50 hover:bg-emerald-100 active:scale-95 text-emerald-700 font-bold text-xs rounded-lg border border-emerald-200 transition">
+                  <i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i> Chamar no WhatsApp (${c.telefone})
+                </a>
+              </div>` : ''}
+              ${c.observacao ? `
+              <div class="pt-1 text-[11px] text-slate-400 italic">
+                "${c.observacao}"
+              </div>` : ''}
+            </div>
+          </div>
+
+          <!-- DESEMPENHO: META VS URNA -->
+          <div class="mt-4 pt-3 border-t border-slate-100 bg-slate-50/80 -mx-4 -mb-4 p-3 rounded-b-xl flex items-center justify-between">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Meta / Real na Urna</span>
+              <div class="font-bold text-xs text-slate-800">
+                <span class="text-emerald-700 font-extrabold">${votosReais}</span> / ${c.meta_votos || 0} votos
+              </div>
+            </div>
+            ${c.meta_votos > 0 ? `
+            <div class="text-right">
+              <span class="text-xs font-black ${pctMeta >= 100 ? 'text-emerald-600' : 'text-amber-600'}">${pctMeta}%</span>
+              <div class="w-12 h-1.5 bg-slate-200 rounded-full overflow-hidden mt-0.5">
+                <div class="h-full bg-emerald-600 rounded-full" style="width: ${Math.min(pctMeta, 100)}%"></div>
+              </div>
+            </div>` : '<span class="text-[10px] text-slate-400 font-medium">Sem meta</span>'}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function filtrarListaCabos() {
+      renderCabos();
+    }
+
+    function abrirModalCabo(candNr, candNome, localNr, secaoNr, cargoPre) {
+      const ano = parseInt(document.getElementById("selAno").value);
+      let cargo = cargoPre || document.getElementById("selCargo").value;
+
+      const selCand = document.getElementById("inpCaboCand");
+      selCand.innerHTML = "";
+
+      if (cargo === "ALL") {
+        const cargos = CARGOS_CONFIG[ano] || [];
+        cargos.forEach(cg => {
+          const cands = db && db.candidatos_geral ? (db.candidatos_geral[`${ano}_1_${cg}`] || []) : [];
+          cands.slice(0, 15).forEach(c => {
+            const opt = document.createElement("option");
+            opt.value = c.nr;
+            opt.dataset.nome = c.nome;
+            opt.dataset.cargo = cg;
+            opt.textContent = `${c.nr} - ${c.nome} (${cg} - ${c.partido})`;
+            if (candNr && c.nr === candNr) opt.selected = true;
+            selCand.appendChild(opt);
+          });
+        });
+      } else {
+        const geralKey = `${ano}_1_${cargo}`;
+        const cands = db && db.candidatos_geral ? (db.candidatos_geral[geralKey] || []) : [];
+        cands.slice(0, 30).forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c.nr;
+          opt.dataset.nome = c.nome;
+          opt.dataset.cargo = cargo;
+          opt.textContent = `${c.nr} - ${c.nome} (${c.partido})`;
+          if (candNr && c.nr === candNr) opt.selected = true;
+          selCand.appendChild(opt);
+        });
+      }
+
+      const selLoc = document.getElementById("inpCaboLocal");
+      selLoc.innerHTML = "";
+      if (db && db.locais) {
+        Object.values(db.locais).forEach(l => {
+          const opt = document.createElement("option");
+          opt.value = l.nr_local;
+          opt.dataset.nome = l.apelido || l.nome;
+          opt.textContent = `${l.apelido || l.nome} (${l.bairro})`;
+          if (localNr && l.nr_local === localNr) opt.selected = true;
+          selLoc.appendChild(opt);
+        });
+      }
+
+      atualizarSecoesModal(secaoNr);
+
+      document.getElementById("inpCaboNome").value = "";
+      document.getElementById("inpCaboTel").value = "";
+      document.getElementById("inpCaboMeta").value = "";
+      document.getElementById("inpCaboObs").value = "";
+
+      const modal = document.getElementById("modalCabo");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function fecharModalCabo() {
+      const modal = document.getElementById("modalCabo");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    function atualizarSecoesModal(secaoPre) {
+      const ano = parseInt(document.getElementById("selAno").value);
+      const selLoc = document.getElementById("inpCaboLocal");
+      const selSecao = document.getElementById("inpCaboSecao");
+      const locId = selLoc.value;
+
+      selSecao.innerHTML = '<option value="Todas">Todas as Seções do Local</option>';
+
+      if (db && db.locais && db.locais[locId]) {
+        const secoes = db.locais[locId][`secoes_${ano}`] || [];
+        secoes.forEach(s => {
+          const opt = document.createElement("option");
+          opt.value = s;
+          opt.textContent = `Seção ${s}`;
+          if (secaoPre && s === secaoPre) opt.selected = true;
+          selSecao.appendChild(opt);
+        });
+      }
+    }
+
+    async function salvarCaboForm(e) {
+      e.preventDefault();
+      const ano = parseInt(document.getElementById("selAno").value);
+      const cargo = document.getElementById("selCargo").value;
+      const selCand = document.getElementById("inpCaboCand");
+      const candNr = selCand.value;
+      const candNome = selCand.options[selCand.selectedIndex].dataset.nome || "";
+      const candCargo = selCand.options[selCand.selectedIndex]?.dataset?.cargo || (cargo === "ALL" ? "Deputado Estadual" : cargo);
+
+      const selLoc = document.getElementById("inpCaboLocal");
+      const locNr = selLoc.value;
+      const locNome = selLoc.options[selLoc.selectedIndex].dataset.nome || "";
+
+      const secaoNr = document.getElementById("inpCaboSecao").value;
+      const nome = document.getElementById("inpCaboNome").value.trim();
+      const tel = document.getElementById("inpCaboTel").value.trim();
+      const meta = parseInt(document.getElementById("inpCaboMeta").value) || 0;
+      const obs = document.getElementById("inpCaboObs").value.trim();
+
+      const payload = {
+        ano,
+        cargo: candCargo,
+        nr_candidato: candNr,
+        nm_candidato: candNome,
+        nr_local: locNr,
+        local_nome: locNome,
+        nr_secao: secaoNr,
+        nome_cabo: nome,
+        telefone: tel,
+        meta_votos: meta,
+        observacao: obs
+      };
+
+      try {
+        const resp = await fetch("/api/cabos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (resp.ok) {
+          const res = await resp.json();
+          payload.id = res.id;
+        } else {
+          throw new Error("API Offline");
+        }
+      } catch (err) {
+        payload.id = Date.now();
+      }
+
+      cabosList.unshift(payload);
+      localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
+
+      fecharModalCabo();
+      carregarCabos();
+      setTab("cabos");
+    }
+
+    async function excluirCabo(id) {
+      if (!confirm("Deseja realmente remover este cabo eleitoral?")) return;
+      const ano = parseInt(document.getElementById("selAno").value);
+      try {
+        await fetch("/api/cabos/delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: id })
+        });
+      } catch (e) {}
+
+      cabosList = cabosList.filter(c => c.id !== id);
+      localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
+      carregarCabos();
+    }
+
+    // ==========================================
+    // RELATÓRIO EXECUTIVO: CANDIDATOS E CABOS
+    // ==========================================
+    function renderRelatorio() {
+      const container = document.getElementById("relatorioContainer");
+      if (!container) return;
+      container.innerHTML = "";
+
+      const ano = parseInt(document.getElementById("selAno").value);
+      const filtroCand = document.getElementById("selRelatorioCand") ? document.getElementById("selRelatorioCand").value : "ALL";
+      const filtroCargo = document.getElementById("selRelatorioCargo") ? document.getElementById("selRelatorioCargo").value : "ALL";
+      const buscaTexto = document.getElementById("inpRelatorioBusca") ? document.getElementById("inpRelatorioBusca").value.toLowerCase().trim() : "";
+
+      // 1. Agrupar cabos por candidato
+      const candsMap = new Map();
+
+      cabosList.forEach(c => {
+        if (!candsMap.has(c.nr_candidato)) {
+          candsMap.set(c.nr_candidato, {
+            nr: c.nr_candidato,
+            nome: c.nm_candidato || c.nr_candidato,
+            cargo: c.cargo || "Deputado Estadual",
+            partido: "",
+            votosGerais: 0,
+            cabos: []
+          });
+        }
+        candsMap.get(c.nr_candidato).cabos.push(c);
+      });
+
+      // 2. Obter votos gerais e partido do candidato a partir de db
+      candsMap.forEach((cItem, nr) => {
+        if (db && db.votos_por_secao) {
+          Object.values(db.votos_por_secao).forEach(item => {
+            if (item.ano === ano) {
+              (item.votos || []).forEach(v => {
+                if (v.nr === nr && v.tipo === "Nominal") {
+                  cItem.votosGerais += v.qtd;
+                  if (!cItem.partido && v.partido) cItem.partido = v.partido;
+                  if ((!cItem.nome || cItem.nome === nr) && v.nome) cItem.nome = v.nome;
+                }
+              });
+            }
+          });
+        }
+      });
+
+      // 3. Filtrar candidatos conforme controles do relatório
+      let candidatosFiltrados = Array.from(candsMap.values()).filter(cItem => {
+        if (filtroCand !== "ALL" && cItem.nr !== filtroCand) return false;
+        if (filtroCargo !== "ALL" && cItem.cargo !== filtroCargo) return false;
+        if (buscaTexto) {
+          const matchCand = cItem.nome.toLowerCase().includes(buscaTexto) || cItem.nr.includes(buscaTexto) || (cItem.partido || "").toLowerCase().includes(buscaTexto);
+          const matchCabo = cItem.cabos.some(cb => cb.nome_cabo.toLowerCase().includes(buscaTexto) || (cb.telefone || "").includes(buscaTexto) || (cb.local_nome || "").toLowerCase().includes(buscaTexto) || (cb.observacao || "").toLowerCase().includes(buscaTexto));
+          if (!matchCand && !matchCabo) return false;
+        }
+        return true;
+      });
+
+      // 4. Calcular KPIs do Relatório
+      let totalCabosGeral = 0;
+      let metaTotalGeral = 0;
+      let votosUrnasGeral = 0;
+
+      candidatosFiltrados.forEach(cItem => {
+        cItem.metaTotal = 0;
+        cItem.votosUrnaCabos = 0;
+
+        cItem.cabos.forEach(cabo => {
+          cItem.metaTotal += (cabo.meta_votos || 0);
+
+          let vReal = 0;
+          if (db && db.votos_por_secao) {
+            Object.values(db.votos_por_secao).forEach(item => {
+              if (item.ano === ano && item.nr_local === cabo.nr_local) {
+                if (cabo.nr_secao === "Todas" || item.secao === cabo.nr_secao) {
+                  (item.votos || []).forEach(v => {
+                    if (v.nr === cItem.nr) vReal += v.qtd;
+                  });
+                }
+              }
+            });
+          }
+          cabo.votosReaisCalculados = vReal;
+          cabo.desempenhoPct = cabo.meta_votos > 0 ? Math.round((vReal / cabo.meta_votos) * 100) : 0;
+          cItem.votosUrnaCabos += vReal;
+        });
+
+        cItem.eficaciaPct = cItem.metaTotal > 0 ? Math.round((cItem.votosUrnaCabos / cItem.metaTotal) * 100) : 0;
+
+        totalCabosGeral += cItem.cabos.length;
+        metaTotalGeral += cItem.metaTotal;
+        votosUrnasGeral += cItem.votosUrnaCabos;
+      });
+
+      // Atualizar KPIs no DOM
+      if (document.getElementById("kpiRelatorioCands")) document.getElementById("kpiRelatorioCands").textContent = candidatosFiltrados.length;
+      if (document.getElementById("kpiRelatorioCabos")) document.getElementById("kpiRelatorioCabos").textContent = totalCabosGeral;
+      if (document.getElementById("kpiRelatorioMetaTotal")) document.getElementById("kpiRelatorioMetaTotal").textContent = metaTotalGeral.toLocaleString('pt-BR');
+      if (document.getElementById("kpiRelatorioVotosReais")) document.getElementById("kpiRelatorioVotosReais").textContent = votosUrnasGeral.toLocaleString('pt-BR');
+      const eficaciaGlobal = metaTotalGeral > 0 ? Math.round((votosUrnasGeral / metaTotalGeral) * 100) : 0;
+      if (document.getElementById("kpiRelatorioEficaciaPct")) document.getElementById("kpiRelatorioEficaciaPct").textContent = `${eficaciaGlobal}% atingido`;
+
+      if (candidatosFiltrados.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white p-10 rounded-2xl border border-slate-200 text-center text-slate-400">
+            <i class="fa-solid fa-file-circle-question text-4xl mb-3 text-slate-300"></i>
+            <h3 class="text-base font-bold text-slate-700">Nenhum candidato encontrado nos filtros</h3>
+            <p class="text-xs text-slate-500 mt-1">Ajuste os filtros ou cadastre novas lideranças para vincular à campanha.</p>
+            <button onclick="abrirModalCabo()" class="mt-4 px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition shadow">
+              <i class="fa-solid fa-plus mr-1"></i> Vincular Novo Cabo Agora
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      // Ordenar por votos gerais decrescente
+      candidatosFiltrados.sort((a, b) => b.votosGerais - a.votosGerais);
+
+      candidatosFiltrados.forEach(cand => {
+        const bloco = document.createElement("div");
+        bloco.className = "bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden break-inside-avoid print:border-slate-800 print:border-2 print:shadow-none print:rounded-none print:mb-6";
+
+        let linhasCabosHTML = "";
+        cand.cabos.forEach(cb => {
+          const zapUrl = cb.telefone ? `https://wa.me/55${cb.telefone.replace(/\D/g, '')}` : null;
+          const statusBadge = cb.desempenhoPct >= 100 
+            ? `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full whitespace-nowrap print:bg-slate-100 print:text-slate-900 print:border print:border-slate-800"><i class="fa-solid fa-check text-[9px] mr-1 print:hidden"></i>${cb.desempenhoPct}% Superada</span>`
+            : cb.desempenhoPct >= 80 
+            ? `<span class="bg-cyan-100 text-cyan-800 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap print:bg-slate-100 print:text-slate-900 print:border print:border-slate-800">${cb.desempenhoPct}% Na Meta</span>`
+            : `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap print:bg-slate-100 print:text-slate-900 print:border print:border-slate-800">${cb.desempenhoPct}% Em Aberto</span>`;
+
+          linhasCabosHTML += `
+            <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+              <td class="py-3 px-3.5 sm:px-4 font-bold text-slate-800">
+                <div class="flex items-center gap-2">
+                  <span class="w-7 h-7 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-xs font-black shrink-0 print:hidden">
+                    <i class="fa-solid fa-user-tag text-[10px]"></i>
+                  </span>
+                  <div>
+                    <div class="text-xs font-bold text-slate-800">${cb.nome_cabo}</div>
+                    ${cb.observacao ? `<div class="text-[10px] text-slate-400 italic font-normal print:text-slate-600">${cb.observacao}</div>` : ''}
+                  </div>
+                </div>
+              </td>
+              <td class="py-3 px-3.5 sm:px-4">
+                ${cb.telefone ? `
+                  <a href="${zapUrl}" target="_blank" class="no-print inline-flex items-center gap-1.5 px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs rounded-lg border border-emerald-200 transition">
+                    <i class="fa-brands fa-whatsapp text-emerald-600"></i> ${cb.telefone}
+                  </a>
+                  <span class="hidden print:inline font-mono font-bold text-slate-900 text-xs">${cb.telefone}</span>
+                ` : '<span class="text-slate-400 italic text-[11px] print:text-slate-500">Não informado</span>'}
+              </td>
+              <td class="py-3 px-3.5 sm:px-4">
+                <div class="font-bold text-slate-700 text-xs">${cb.local_nome}</div>
+                <div class="text-[10px] text-slate-400 font-mono print:text-slate-600">Cód: ${cb.nr_local}</div>
+              </td>
+              <td class="py-3 px-3.5 sm:px-4">
+                <span class="px-2 py-0.5 rounded text-xs font-bold ${cb.nr_secao === 'Todas' ? 'bg-indigo-50 text-indigo-700' : 'bg-slate-100 text-slate-800'} print:border print:border-slate-300">
+                  ${cb.nr_secao === 'Todas' ? 'Todas do Colégio' : 'Seção ' + cb.nr_secao}
+                </span>
+              </td>
+              <td class="py-3 px-3.5 sm:px-4 text-center font-bold text-slate-700 text-xs">
+                ${cb.meta_votos || 0}
+              </td>
+              <td class="py-3 px-3.5 sm:px-4 text-center font-black text-emerald-800 text-xs">
+                ${cb.votosReaisCalculados}
+              </td>
+              <td class="py-3 px-3.5 sm:px-4 text-center">
+                ${statusBadge}
+              </td>
+              <td class="py-3 px-3.5 sm:px-4 text-right no-print">
+                <button onclick="excluirCabo(${cb.id})" class="text-slate-300 hover:text-rose-500 text-xs p-1 transition" title="Remover cabo">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+
+        bloco.innerHTML = `
+          <!-- CABEÇALHO DO CANDIDATO -->
+          <div class="bg-gradient-to-r from-slate-50 via-emerald-50/30 to-slate-50 p-4 sm:p-5 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3 print:bg-slate-100 print:border-b-2 print:border-slate-800">
+            <div class="flex items-center gap-3.5">
+              <div class="w-11 h-11 rounded-xl bg-emerald-800 text-white flex items-center justify-center text-sm font-black shrink-0 shadow-sm print:border print:border-slate-900 print:bg-slate-900">
+                ${cand.partido || 'CAND'}
+              </div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h3 class="text-base sm:text-lg font-extrabold text-slate-900">${cand.nome}</h3>
+                  <span class="bg-slate-200 text-slate-800 text-xs font-black px-2.5 py-0.5 rounded-lg print:border print:border-slate-400">Nº ${cand.nr}</span>
+                  <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded-lg border border-emerald-200 print:border-slate-400 print:bg-slate-50 print:text-slate-900">${cand.cargo}</span>
+                  ${cand.partido ? `<span class="bg-slate-100 text-slate-700 text-xs font-semibold px-2 py-0.5 rounded-lg border border-slate-200 print:border-slate-400">${cand.partido}</span>` : ''}
+                </div>
+                <div class="text-xs text-slate-500 mt-1 flex items-center gap-2 flex-wrap print:text-slate-700">
+                  <span>Votação Geral em Canindé: <strong class="text-emerald-800 font-extrabold print:text-slate-900">${cand.votosGerais.toLocaleString('pt-BR')} votos nominais</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- PAINEL DE RESUMO DA EQUIPE DO CANDIDATO -->
+            <div class="flex items-center gap-3 sm:gap-4 text-xs bg-white p-2.5 rounded-xl border border-slate-200 shadow-2xs shrink-0 print:border-slate-400 print:shadow-none">
+              <div class="text-center px-1">
+                <span class="text-slate-400 block text-[10px] uppercase font-bold print:text-slate-600">Cabos</span>
+                <span class="font-black text-slate-800 text-sm">${cand.cabos.length}</span>
+              </div>
+              <div class="w-px h-7 bg-slate-200 print:bg-slate-400"></div>
+              <div class="text-center px-1">
+                <span class="text-slate-400 block text-[10px] uppercase font-bold print:text-slate-600">Meta Equipe</span>
+                <span class="font-black text-indigo-700 text-sm print:text-slate-900">${cand.metaTotal}</span>
+              </div>
+              <div class="w-px h-7 bg-slate-200 print:bg-slate-400"></div>
+              <div class="text-center px-1">
+                <span class="text-slate-400 block text-[10px] uppercase font-bold print:text-slate-600">Urna Cabos</span>
+                <span class="font-black text-emerald-700 text-sm print:text-slate-900">${cand.votosUrnaCabos}</span>
+              </div>
+              <div class="w-px h-7 bg-slate-200 print:bg-slate-400"></div>
+              <div class="text-center px-1">
+                <span class="text-slate-400 block text-[10px] uppercase font-bold print:text-slate-600">Eficácia</span>
+                <span class="font-black text-sm ${cand.eficaciaPct >= 100 ? 'text-emerald-600' : 'text-amber-600'} print:text-slate-900">${cand.eficaciaPct}%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TABELA DE CABOS DO CANDIDATO -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead class="bg-slate-50/90 text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3.5 sm:px-4">Cabo Eleitoral / Liderança</th>
+                  <th class="py-2.5 px-3.5 sm:px-4">WhatsApp / Telefone</th>
+                  <th class="py-2.5 px-3.5 sm:px-4">Local de Votação (Colégio)</th>
+                  <th class="py-2.5 px-3.5 sm:px-4">Seção Eleitoral</th>
+                  <th class="py-2.5 px-3.5 sm:px-4 text-center">Meta Combinada</th>
+                  <th class="py-2.5 px-3.5 sm:px-4 text-center">Urna Real TSE</th>
+                  <th class="py-2.5 px-3.5 sm:px-4 text-center">Desempenho</th>
+                  <th class="py-2.5 px-3.5 sm:px-4 text-right no-print">Ações</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${linhasCabosHTML}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- RODAPÉ DO CARD DO CANDIDATO -->
+          <div class="p-3 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between no-print">
+            <span class="text-[11px] text-slate-500 font-medium">
+              <i class="fa-solid fa-users text-amber-500 mr-1"></i> ${cand.cabos.length} liderança(s) vinculada(s) à campanha de ${cand.nome.split(' ')[0]}
+            </span>
+            <button onclick="abrirModalCabo('${cand.nr}', '${cand.nome.replace(/'/g, "\\'")}', null, null, '${cand.cargo}')" class="px-3 py-1.5 text-xs font-bold bg-amber-50 hover:bg-amber-100 active:scale-95 text-amber-800 rounded-lg border border-amber-200 transition inline-flex items-center gap-1.5">
+              <i class="fa-solid fa-plus text-[10px]"></i> Vincular Outro Cabo para ${cand.nome.split(' ')[0]}
+            </button>
+          </div>
+        `;
+        container.appendChild(bloco);
+      });
+    }
+
+    function exportarRelatorioCSV() {
+      const ano = parseInt(document.getElementById("selAno").value);
+      if (!cabosList || cabosList.length === 0) {
+        alert("Nenhum cabo eleitoral cadastrado para exportar.");
+        return;
+      }
+
+      let csv = "\uFEFF";
+      csv += "Ano;Cargo;Candidato;Numero;Partido;Votos_Gerais_Caninde;Nome_Cabo;Telefone;Local_Votacao;Cod_Local;Secao;Meta_Votos;Urna_Real;Eficacia_Pct;Observacao\n";
+
+      cabosList.forEach(cb => {
+        let vGerais = 0;
+        let vReal = 0;
+        let partido = "";
+        if (db && db.votos_por_secao) {
+          Object.values(db.votos_por_secao).forEach(item => {
+            if (item.ano === ano) {
+              (item.votos || []).forEach(v => {
+                if (v.nr === cb.nr_candidato) {
+                  vGerais += v.qtd;
+                  if (!partido && v.partido) partido = v.partido;
+                }
+              });
+              if (item.nr_local === cb.nr_local && (cb.nr_secao === "Todas" || item.secao === cb.nr_secao)) {
+                (item.votos || []).forEach(v => {
+                  if (v.nr === cb.nr_candidato) vReal += v.qtd;
+                });
+              }
+            }
+          });
+        }
+        const pct = cb.meta_votos > 0 ? ((vReal / cb.meta_votos) * 100).toFixed(1) + "%" : "0%";
+
+        const linha = [
+          cb.ano || ano,
+          `"${cb.cargo || ''}"`,
+          `"${cb.nm_candidato || ''}"`,
+          cb.nr_candidato,
+          `"${partido}"`,
+          vGerais,
+          `"${cb.nome_cabo || ''}"`,
+          `"${cb.telefone || ''}"`,
+          `"${cb.local_nome || ''}"`,
+          cb.nr_local || '',
+          cb.nr_secao || 'Todas',
+          cb.meta_votos || 0,
+          vReal,
+          `"${pct}"`,
+          `"${(cb.observacao || '').replace(/"/g, '""')}"`
+        ];
+        csv += linha.join(";") + "\n";
+      });
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `relatorio_candidatos_e_cabos_caninde_${ano}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function dispararImpressaoPDF() {
+      setTab('relatorio');
+      
+      const agora = new Date();
+      const dataFormatada = agora.toLocaleDateString('pt-BR');
+      const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      if (document.getElementById("printTimestamp")) {
+        document.getElementById("printTimestamp").textContent = `${dataFormatada} às ${horaFormatada}`;
+      }
+      
+      const protocoloNum = Math.floor(1000 + Math.random() * 9000);
+      if (document.getElementById("printProtocolo")) {
+        document.getElementById("printProtocolo").textContent = `CSF-TRE-2026-${protocoloNum}`;
+      }
+      
+      const meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+      if (document.getElementById("printDataExtenso")) {
+        document.getElementById("printDataExtenso").textContent = `${agora.getDate()} de ${meses[agora.getMonth()]} de ${agora.getFullYear()}`;
+      }
+      
+      if (document.getElementById("printTotalCands") && document.getElementById("kpiRelatorioCands")) {
+        document.getElementById("printTotalCands").textContent = document.getElementById("kpiRelatorioCands").textContent;
+      }
+      if (document.getElementById("printTotalCabos") && document.getElementById("kpiRelatorioCabos")) {
+        document.getElementById("printTotalCabos").textContent = document.getElementById("kpiRelatorioCabos").textContent;
+      }
+      if (document.getElementById("printMetaTotal") && document.getElementById("kpiRelatorioMetaTotal")) {
+        document.getElementById("printMetaTotal").textContent = document.getElementById("kpiRelatorioMetaTotal").textContent + " votos";
+      }
+      if (document.getElementById("printVotosUrnas") && document.getElementById("kpiRelatorioVotosReais")) {
+        const votos = document.getElementById("kpiRelatorioVotosReais").textContent;
+        const pct = document.getElementById("kpiRelatorioEficaciaPct") ? document.getElementById("kpiRelatorioEficaciaPct").textContent : "0%";
+        document.getElementById("printVotosUrnas").textContent = `${votos} votos (${pct})`;
+      }
+
+      window.print();
+    }
+
+    function abrirJanelaPDFA4() {
+      const pane = document.getElementById("paneRelatorio");
+      if (!pane) return;
+      
+      const agora = new Date();
+      const dataFormatada = agora.toLocaleDateString('pt-BR');
+      const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      const protocoloCode = `CSF-TRE-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      const meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+      const dataExtenso = `${agora.getDate()} de ${meses[agora.getMonth()]} de ${agora.getFullYear()}`;
+      
+      const totalCands = document.getElementById("kpiRelatorioCands") ? document.getElementById("kpiRelatorioCands").textContent : "0";
+      const totalCabos = document.getElementById("kpiRelatorioCabos") ? document.getElementById("kpiRelatorioCabos").textContent : "0";
+      const metaTotal = document.getElementById("kpiRelatorioMetaTotal") ? document.getElementById("kpiRelatorioMetaTotal").textContent : "0";
+      const votosReais = document.getElementById("kpiRelatorioVotosReais") ? document.getElementById("kpiRelatorioVotosReais").textContent : "0";
+      const eficaciaPct = document.getElementById("kpiRelatorioEficaciaPct") ? document.getElementById("kpiRelatorioEficaciaPct").textContent : "0%";
+
+      const conteudoHTML = document.getElementById("relatorioContainer").innerHTML;
+
+      const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Dossiê Oficial - Canindé de São Francisco 2026</title>
+  <script src="https://cdn.tailwindcss.com"><\/script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; background: #fff; color: #0f172a; }
+    @page { size: A4 portrait; margin: 10mm 12mm 12mm 12mm; }
+    .break-inside-avoid { break-inside: avoid !important; page-break-inside: avoid !important; }
+    table { width: 100%; border-collapse: collapse; font-size: 8pt; }
+    thead { display: table-header-group; }
+    thead th { background-color: #f1f5f9; color: #0f172a; border: 1px solid #475569; padding: 4px 6px; font-weight: 800; font-size: 7.5pt; text-transform: uppercase; }
+    tbody tr { break-inside: avoid; page-break-inside: avoid; }
+    tbody td { border: 1px solid #cbd5e1; padding: 3px 6px; color: #000; }
+    tbody tr:nth-child(even) td { background-color: #f8fafc; }
+    .no-print { display: none !important; }
+    @media print {
+      .preview-actions-bar { display: none !important; }
+      body { padding: 0 !important; }
+    }
+  </style>
+</head>
+<body class="p-4 sm:p-8 max-w-4xl mx-auto">
+  <!-- BARRA DE AÇÃO EM TELA (NÃO IMPRESSA) -->
+  <div class="preview-actions-bar mb-6 p-4 bg-slate-900 text-white rounded-2xl flex items-center justify-between shadow-lg">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-black">
+        <i class="fa-solid fa-print"></i>
+      </div>
+      <div>
+        <h4 class="text-sm font-bold">Dossiê A4 Canindé 2026 (Pronto para Impressão)</h4>
+        <p class="text-[11px] text-slate-400">Clique no botão abaixo para imprimir ou salvar como PDF com formatação oficial.</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="window.close()" class="px-3.5 py-2 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition">
+        Fechar Janela
+      </button>
+      <button onclick="window.print()" class="px-4 py-2 text-xs font-black bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl transition shadow flex items-center gap-1.5">
+        <i class="fa-solid fa-file-pdf"></i> Imprimir / Salvar PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- CABEÇALHO OFICIAL COM BRASÃO -->
+  <div class="border-b-2 border-slate-900 pb-3 mb-4">
+    <div class="flex items-center justify-between gap-4 border-b border-slate-300 pb-3 mb-2.5">
+      <div class="w-16 h-16 shrink-0 flex items-center justify-center">
+        <svg class="w-14 h-14" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="46" stroke="#0f172a" stroke-width="2" fill="#f8fafc"/>
+          <circle cx="50" cy="50" r="39" stroke="#0f172a" stroke-width="1" stroke-dasharray="2,2"/>
+          <path d="M50 14 L58 35 L80 35 L62 48 L69 70 L50 56 L31 70 L38 48 L20 35 L42 35 Z" fill="#0f172a" stroke="#0f172a" stroke-width="1"/>
+          <circle cx="50" cy="46" r="13" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+          <circle cx="50" cy="46" r="4.5" fill="#0f172a"/>
+          <path d="M26 80 C36 86, 64 86, 74 80" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="50" y="93" text-anchor="middle" font-size="5.5" font-weight="900" fill="#0f172a" font-family="sans-serif" letter-spacing="1">JUSTIÇA ELEITORAL</text>
+        </svg>
+      </div>
+      <div class="text-center flex-1">
+        <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-800 leading-tight">REPÚBLICA FEDERATIVA DO BRASIL • PODER JUDICIÁRIO</h4>
+        <h2 class="text-xs font-black uppercase tracking-wider text-slate-900 mt-0.5">TRIBUNAL REGIONAL ELEITORAL DE SERGIPE — 28ª ZONA ELEITORAL</h2>
+        <h3 class="text-sm font-black uppercase text-slate-900 mt-1 tracking-tight">RELATÓRIO OFICIAL DE AUDITORIA & METAS DE CAMPANHA</h3>
+        <p class="text-[9.5px] text-slate-600 font-semibold mt-0.5">Mapeamento Integrado: Candidatos, Lideranças Territoriais (Cabos) e Desempenho nas Urnas</p>
+      </div>
+      <div class="w-24 text-right text-[8.5px] text-slate-600 font-mono leading-tight shrink-0 border-l border-slate-300 pl-2">
+        <span class="block font-bold text-slate-900">VIA OFICIAL</span>
+        <span class="block text-slate-500">Canindé de S. Francisco</span>
+        <span class="block font-bold text-slate-900">CÓD. TSE: 31232</span>
+      </div>
+    </div>
+
+    <!-- METADADOS -->
+    <div class="grid grid-cols-4 gap-2 text-[9px] bg-slate-100 p-2 rounded border border-slate-300 font-mono">
+      <div><span class="font-bold text-slate-800">PLEITO:</span> 2026 (Eleições Gerais)</div>
+      <div><span class="font-bold text-slate-800">MUNICÍPIO:</span> Canindé de São Francisco/SE</div>
+      <div><span class="font-bold text-slate-800">EMISSÃO:</span> ${dataFormatada} às ${horaFormatada}</div>
+      <div><span class="font-bold text-slate-800">PROTOCOLO:</span> ${protocoloCode}</div>
+    </div>
+
+    <!-- QUADRO MACRO -->
+    <div class="mt-2.5 border border-slate-800 rounded bg-white overflow-hidden">
+      <div class="bg-slate-800 text-white text-[8.5px] font-black uppercase px-2.5 py-1 flex justify-between">
+        <span>Quadro Consolidado da Campanha e Colégio Eleitoral</span>
+        <span>Base: 100% das 77 Seções Apuradas</span>
+      </div>
+      <div class="grid grid-cols-5 text-center divide-x divide-slate-200 py-1.5 text-xs">
+        <div class="px-2">
+          <span class="text-[8.5px] text-slate-500 block uppercase font-bold">Eleitorado Canindé</span>
+          <strong class="text-slate-900 text-xs">24.725 aptos</strong>
+        </div>
+        <div class="px-2">
+          <span class="text-[8.5px] text-slate-500 block uppercase font-bold">Candidatos no Dossiê</span>
+          <strong class="text-slate-900 text-xs">${totalCands}</strong>
+        </div>
+        <div class="px-2">
+          <span class="text-[8.5px] text-slate-500 block uppercase font-bold">Cabos Mobilizados</span>
+          <strong class="text-amber-800 text-xs">${totalCabos}</strong>
+        </div>
+        <div class="px-2">
+          <span class="text-[8.5px] text-slate-500 block uppercase font-bold">Meta Total Equipe</span>
+          <strong class="text-indigo-800 text-xs">${metaTotal} votos</strong>
+        </div>
+        <div class="px-2">
+          <span class="text-[8.5px] text-slate-500 block uppercase font-bold">Urna Real (Eficácia)</span>
+          <strong class="text-emerald-800 text-xs">${votosReais} (${eficaciaPct})</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTEÚDO DOS CANDIDATOS -->
+  <div class="space-y-6">
+    ${conteudoHTML}
+  </div>
+
+  <!-- TERMO DE HOMOLOGAÇÃO -->
+  <div class="mt-8 pt-4 border-t-2 border-slate-900 break-inside-avoid">
+    <div class="text-center space-y-1 mb-8">
+      <h4 class="text-xs font-black uppercase text-slate-800">TERMO DE HOMOLOGAÇÃO E CONFORMIDADE DE CAMPANHA</h4>
+      <p class="text-[9.5px] text-slate-600 max-w-2xl mx-auto leading-relaxed">
+        Certificamos, para os devidos fins de controle tático e prestação de contas político-eleitoral, que as lideranças e metas territoriais acima discriminadas foram fiscalizadas em conformidade com as urnas da 28ª Zona Eleitoral do Tribunal Regional Eleitoral de Sergipe em Canindé de São Francisco.
+      </p>
+      <p class="text-[10px] text-slate-800 font-bold mt-2">
+        Canindé de São Francisco (SE), ${dataExtenso}.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-12 max-w-2xl mx-auto pt-4 text-center">
+      <div class="border-t border-slate-800 pt-1.5">
+        <span class="block text-xs font-black text-slate-900">COORDENAÇÃO GERAL DE CAMPANHA</span>
+        <span class="block text-[8.5px] text-slate-500 font-mono">DIRETÓRIO MUNICIPAL DE CANINDÉ DE SÃO FRANCISCO</span>
+      </div>
+      <div class="border-t border-slate-800 pt-1.5">
+        <span class="block text-xs font-black text-slate-900">COORDENAÇÃO DE MOBILIZAÇÃO E TERRITÓRIO</span>
+        <span class="block text-[8.5px] text-slate-500 font-mono">RESPONSÁVEL PELA ARTICULAÇÃO POLÍTICA</span>
+      </div>
+    </div>
+
+    <div class="mt-8 pt-2 border-t border-slate-200 text-center text-[8px] text-slate-400 font-mono">
+      Documento auditado e emitido pelo Sistema Eleitoral de Canindé de São Francisco • Ecossistema Master Skill (BMad Method, Spec-Kit & Antigravity Kit)
+    </div>
+  </div>
+</body>
+</html>`;
+
+      const win = window.open("", "_blank");
+      if (win) {
+        win.document.open();
+        win.document.write(html);
+        win.document.close();
+      } else {
+        alert("O navegador bloqueou a janela pop-up. Por favor, habilite pop-ups para este site ou utilize o botão 'Imprimir / Salvar PDF'.");
+      }
+    }
+  </script>
+</body>
+</html>
