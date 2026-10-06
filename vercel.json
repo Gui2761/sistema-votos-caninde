@@ -1,11 +1,3 @@
 {
-  "version": 2,
-  "name": "sistema-votos-caninde",
-  "cleanUrls": true,
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ]
+  "outputDirectory": "."
 }
