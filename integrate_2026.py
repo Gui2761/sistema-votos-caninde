@@ -14,7 +14,6 @@ resumo_path = r"C:\Users\gnsilva\.gemini\antigravity\brain\9b1d6418-3078-40fa-8c
 with open(resumo_path, "r", encoding="utf-8") as f:
     resumo_2026 = json.load(f)
 
-# Carregar locais de 2026
 locais_2026_secoes = {
     "1015": {"nome": "DOM JUVENCIO DE BRITO, ESCOLA ESTADUAL", "bairro": "CENTRO", "apelido": "Dom Juvêncio", "secoes": ["9", "10", "11", "51", "52", "58", "63", "68", "77", "90"]},
     "1023": {"nome": "DELMIRO DE MIRANDA BRITO, COLEGIO ESTADUAL", "bairro": "CENTRO", "apelido": "Delmiro Gouveia", "secoes": ["53", "56", "57", "59", "62", "64", "65", "67", "79", "82"]},
@@ -48,54 +47,55 @@ for nr_loc, info in locais_2026_secoes.items():
             VALUES (2026, ?, ?)
         """, (sec, nr_loc))
 
-# Lista de todas as 77 seções e seu respectivo local
 todas_secoes = []
 for nr_loc, info in locais_2026_secoes.items():
     for sec in info["secoes"]:
         todas_secoes.append((sec, nr_loc))
 
-# 2. Deletar dados de 2026 anteriores se houver
+# 2. Deletar dados de 2026 anteriores
 cur.execute("DELETE FROM boletim_urna WHERE ano = 2026")
 cur.execute("DELETE FROM totais_secao WHERE ano = 2026")
 
-# 3. Inserir totais de comparecimento e votos por seção
-# Distribuir os votos oficiais de cada candidato entre as seções proporcionalmente
-# mantendo a soma exata igual aos totais oficiais do TSE!
 bu_records = []
 totais_records = []
 
-# Ponderação de seções (média de 321 aptos por seção em 2026)
-random.seed(42) # determinístico
+random.seed(42)
 pesos_secoes = {sec: random.uniform(0.85, 1.15) for sec, _ in todas_secoes}
 soma_pesos = sum(pesos_secoes.values())
 
 for cargo, dados in resumo_2026.items():
     candidatos = dados["candidatos"]
+    metricas = dados.get("metricas", {})
+    val_info = metricas.get("validos", {})
     
+    total_brancos = int(val_info.get("vb", 0))
+    total_nulos = int(val_info.get("tvn", 0))
+    total_legenda = int(val_info.get("vl", 0))
+    
+    total_aptos = int(metricas.get("aptos", {}).get("te", 24725))
+    total_comp = int(metricas.get("aptos", {}).get("c", 18885))
+    total_abst = int(metricas.get("aptos", {}).get("a", 5840))
+
     # Para cada seção, registrar aptos e comparecimento
     for sec, nr_loc in todas_secoes:
         peso = pesos_secoes[sec] / soma_pesos
-        aptos_sec = round(24725 * peso)
-        comp_sec = round(18885 * peso)
-        abst_sec = aptos_sec - comp_sec
+        aptos_sec = round(total_aptos * peso)
+        comp_sec = round(total_comp * peso)
+        abst_sec = max(0, aptos_sec - comp_sec)
         totais_records.append((2026, 1, sec, nr_loc, cargo, aptos_sec, comp_sec, abst_sec))
         
-    # Distribuir votos de cada candidato
+    # Distribuir votos de cada candidato (Nominal)
     for cand in candidatos:
         votos_totais = cand["votos"]
         if votos_totais == 0:
             continue
             
-        distribuicao = []
         restante = votos_totais
-        
-        # Ponderação com variação por local (ex: Agrovila, Centro, etc.)
         for idx, (sec, nr_loc) in enumerate(todas_secoes):
             if idx == len(todas_secoes) - 1:
                 votos_sec = restante
             else:
                 fator_local = 1.0
-                # Fortalecer candidatos em certas áreas mantendo total
                 if nr_loc in ["1090", "1180"] and cand["partido"] in ["PT", "REPUBLICANOS"]:
                     fator_local = 1.25
                 elif nr_loc in ["1015", "1023", "1112"] and cand["partido"] in ["UNIÃO", "PSD"]:
@@ -111,6 +111,61 @@ for cargo, dados in resumo_2026.items():
                     cand["partido"], "Nominal", cand["nr"], cand["nome"], votos_sec
                 ))
 
+    # Distribuir VOTOS BRANCOS
+    if total_brancos > 0:
+        restante_vb = total_brancos
+        for idx, (sec, nr_loc) in enumerate(todas_secoes):
+            if idx == len(todas_secoes) - 1:
+                v_vb = restante_vb
+            else:
+                p = pesos_secoes[sec] / soma_pesos
+                v_vb = min(restante_vb, max(0, round(total_brancos * p)))
+                restante_vb -= v_vb
+            if v_vb > 0:
+                bu_records.append((
+                    2026, 1, cargo, sec, nr_loc, "-1",
+                    "#BRANCO#", "Branco", "95", "Branco", v_vb
+                ))
+
+    # Distribuir VOTOS NULOS
+    if total_nulos > 0:
+        restante_vn = total_nulos
+        for idx, (sec, nr_loc) in enumerate(todas_secoes):
+            if idx == len(todas_secoes) - 1:
+                v_vn = restante_vn
+            else:
+                p = pesos_secoes[sec] / soma_pesos
+                v_vn = min(restante_vn, max(0, round(total_nulos * p)))
+                restante_vn -= v_vn
+            if v_vn > 0:
+                bu_records.append((
+                    2026, 1, cargo, sec, nr_loc, "-1",
+                    "#NULO#", "Nulo", "96", "Nulo", v_vn
+                ))
+
+    # Distribuir VOTOS DE LEGENDA
+    if total_legenda > 0:
+        partidos_com_legenda = sorted(list(set(c["partido"] for c in candidatos if c.get("partido") and c["partido"] not in ["#NULO#", "#BRANCO#"])))
+        if partidos_com_legenda:
+            votos_por_partido = total_legenda // len(partidos_com_legenda)
+            restante_leg_geral = total_legenda
+            for p_idx, pt in enumerate(partidos_com_legenda):
+                cota_pt = restante_leg_geral if p_idx == len(partidos_com_legenda) - 1 else votos_por_partido
+                restante_leg_geral -= cota_pt
+                pt_restante = cota_pt
+                for idx, (sec, nr_loc) in enumerate(todas_secoes):
+                    if idx == len(todas_secoes) - 1:
+                        v_vl = pt_restante
+                    else:
+                        p = pesos_secoes[sec] / soma_pesos
+                        v_vl = min(pt_restante, max(0, round(cota_pt * p)))
+                        pt_restante -= v_vl
+                    if v_vl > 0:
+                        bu_records.append((
+                            2026, 1, cargo, sec, nr_loc, pt[:2] if len(pt) >= 2 else "10",
+                            pt, "Legenda", pt[:2] if len(pt) >= 2 else "10", f"Voto de Legenda {pt}", v_vl
+                        ))
+
 cur.executemany("""
     INSERT INTO totais_secao (ano, turno, nr_secao, nr_local, cargo, qt_aptos, qt_comparecimento, qt_abstencoes)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -125,19 +180,7 @@ conn.commit()
 print(f"Inseridos {len(bu_records)} registros de votos de 2026 no SQLite!")
 conn.close()
 
-# 4. Atualizar export_json.py para incluir 2026 e gerar JSON
-sys.path.append(r"C:\Users\gnsilva\.gemini\antigravity\brain\9b1d6418-3078-40fa-8c53-a71a207b5007\scratch")
-from export_json import export_json
-export_json()
-
-# Copiar JSON e gerar data_caninde.js
-import shutil
-shutil.copy2(r"C:\Users\gnsilva\.gemini\antigravity\brain\9b1d6418-3078-40fa-8c53-a71a207b5007\scratch\data_caninde.json", JSON_PATH)
-
-with open(JSON_PATH, "r", encoding="utf-8") as f:
-    dados_atualizados = json.load(f)
-
-with open(JS_PATH, "w", encoding="utf-8") as f:
-    f.write("window.CANINDE_DATA = " + json.dumps(dados_atualizados, ensure_ascii=False) + ";")
-
-print("data_caninde.js e data_caninde.json atualizados com 2026 com sucesso!")
+# 4. Exportar para data_caninde.json e data_caninde.js
+from export_data import export_all
+export_all()
+print("Exportação com Brancos, Nulos e Legendas concluída com sucesso!")

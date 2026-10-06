@@ -232,11 +232,12 @@
     <!-- CARDS DE MÉTRICAS (KPIs - RESPONSIVO) -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
       <div class="bg-white p-2.5 sm:p-3.5 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
-        <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Votos Válidos</span>
+        <span id="kpiValidosLabel" class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Votos Válidos</span>
         <div class="mt-1 flex items-baseline justify-between">
           <span id="kpiValidos" class="text-base sm:text-xl font-extrabold text-emerald-700">0</span>
           <i class="fa-solid fa-check-double text-emerald-200 text-sm sm:text-lg"></i>
         </div>
+        <span id="kpiValidosSub" class="text-[9px] text-slate-400 font-semibold block mt-0.5 truncate">Nominais + Legenda</span>
       </div>
       <div class="bg-white p-2.5 sm:p-3.5 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
         <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Aptos</span>
@@ -244,6 +245,7 @@
           <span id="kpiAptos" class="text-base sm:text-xl font-extrabold text-slate-700">0</span>
           <i class="fa-solid fa-users text-slate-200 text-sm sm:text-lg"></i>
         </div>
+        <span class="text-[9px] text-slate-400 font-semibold block mt-0.5">Eleitorado total</span>
       </div>
       <div class="bg-white p-2.5 sm:p-3.5 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
         <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Comparecimento</span>
@@ -251,6 +253,7 @@
           <span id="kpiComparecimento" class="text-base sm:text-xl font-extrabold text-cyan-700">0</span>
           <span id="kpiCompPct" class="text-[10px] sm:text-xs font-bold text-cyan-600">0%</span>
         </div>
+        <span class="text-[9px] text-slate-400 font-semibold block mt-0.5">Votantes nas urnas</span>
       </div>
       <div class="bg-white p-2.5 sm:p-3.5 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
         <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Abstenção</span>
@@ -258,6 +261,7 @@
           <span id="kpiAbstencao" class="text-base sm:text-xl font-extrabold text-amber-600">0</span>
           <span id="kpiAbstPct" class="text-[10px] sm:text-xs font-bold text-amber-600">0%</span>
         </div>
+        <span class="text-[9px] text-slate-400 font-semibold block mt-0.5">Não compareceram</span>
       </div>
       <div class="bg-white p-2.5 sm:p-3.5 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
         <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Brancos/Nulos</span>
@@ -265,6 +269,7 @@
           <span id="kpiBrancosNulos" class="text-base sm:text-xl font-extrabold text-slate-600">0</span>
           <span id="kpiBnPct" class="text-[10px] sm:text-xs font-bold text-slate-400">0%</span>
         </div>
+        <span id="kpiBnSub" class="text-[9px] text-slate-400 font-semibold block mt-0.5 truncate">Votos em branco e nulos</span>
       </div>
       <div class="bg-white p-2.5 sm:p-3.5 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
         <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">Seções</span>
@@ -272,6 +277,7 @@
           <span id="kpiSecoesCount" class="text-base sm:text-xl font-extrabold text-indigo-600">0</span>
           <i class="fa-solid fa-boxes-stacked text-indigo-200 text-sm sm:text-lg"></i>
         </div>
+        <span class="text-[9px] text-slate-400 font-semibold block mt-0.5">Urnas apuradas</span>
       </div>
     </div>
 
@@ -836,12 +842,6 @@
       
       const cargos = CARGOS_CONFIG[ano] || [];
       
-      // Opção Todos os Cargos
-      const optTodos = document.createElement("option");
-      optTodos.value = "ALL";
-      optTodos.textContent = "Todos os Cargos (Geral)";
-      selCargo.appendChild(optTodos);
-
       cargos.forEach(cargo => {
         const opt = document.createElement("option");
         opt.value = cargo;
@@ -849,12 +849,20 @@
         selCargo.appendChild(opt);
       });
 
-      if (currentVal && (currentVal === "ALL" || cargos.includes(currentVal))) {
+      // Opção Todos os Cargos no fim do dropdown
+      const optTodos = document.createElement("option");
+      optTodos.value = "ALL";
+      optTodos.textContent = "Todos os Cargos (Soma Geral)";
+      selCargo.appendChild(optTodos);
+
+      if (currentVal && cargos.includes(currentVal)) {
         selCargo.value = currentVal;
       } else if (cargos.includes("Deputado Estadual")) {
         selCargo.value = "Deputado Estadual";
+      } else if (cargos.includes("Prefeito")) {
+        selCargo.value = "Prefeito";
       } else {
-        selCargo.value = "ALL";
+        selCargo.value = cargos[0] || "ALL";
       }
 
       renderMobileCargoChips(cargos);
@@ -881,9 +889,9 @@
       if (!container) return;
       container.innerHTML = "";
       const selCargo = document.getElementById("selCargo");
-      const cargoAtual = selCargo ? selCargo.value : (cargos[0] || "ALL");
+      const cargoAtual = selCargo ? selCargo.value : (cargos.includes("Deputado Estadual") ? "Deputado Estadual" : (cargos[0] || "ALL"));
 
-      const listaItens = [{ valor: "ALL", label: "Todos os Cargos" }, ...cargos.map(c => ({ valor: c, label: c }))];
+      const listaItens = [...cargos.map(c => ({ valor: c, label: c })), { valor: "ALL", label: "Todos os Cargos" }];
 
       listaItens.forEach(item => {
         const btn = document.createElement("button");
@@ -1010,7 +1018,24 @@
       document.getElementById("kpiAbstencao").textContent = totalAbst.toLocaleString("pt-BR");
       document.getElementById("kpiAbstPct").textContent = totalAptos > 0 ? ((totalAbst / totalAptos) * 100).toFixed(1) + "%" : "0%";
       document.getElementById("kpiBrancosNulos").textContent = brancosNulos.toLocaleString("pt-BR");
-      document.getElementById("kpiBnPct").textContent = (totalComp > 0) ? ((brancosNulos / totalComp) * 100).toFixed(1) + "%" : "0%";
+
+      const totalCedulas = totalValidos + brancosNulos;
+      const bnPct = totalCedulas > 0 ? ((brancosNulos / totalCedulas) * 100).toFixed(1) + "%" : "0%";
+      document.getElementById("kpiBnPct").textContent = bnPct;
+
+      const elValidosLabel = document.getElementById("kpiValidosLabel");
+      const elValidosSub = document.getElementById("kpiValidosSub");
+      const elBnSub = document.getElementById("kpiBnSub");
+
+      if (cargo === "ALL") {
+        if (elValidosLabel) elValidosLabel.textContent = "Votos Válidos (Soma)";
+        if (elValidosSub) elValidosSub.textContent = "Soma de todos os cargos";
+        if (elBnSub) elBnSub.textContent = `${bnPct} de todos os votos`;
+      } else {
+        if (elValidosLabel) elValidosLabel.textContent = "Votos Válidos";
+        if (elValidosSub) elValidosSub.textContent = "Nominais + Legenda";
+        if (elBnSub) elBnSub.textContent = `${bnPct} dos votos do cargo`;
+      }
       document.getElementById("kpiSecoesCount").textContent = totalSecoes;
 
       // Atualizar Titulo do Ranking
