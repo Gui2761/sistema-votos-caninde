@@ -242,7 +242,9 @@ def get_relatorio_candidatos_cabos(ano=2026, nr_candidato=None, cargo=None):
             meta_cand += meta
             tot_cabos_global += 1
 
-            if nr_secao == "Todas":
+            if nr_local == "ALL":
+                cur.execute("SELECT SUM(qt_votos) FROM boletim_urna WHERE ano = ? AND nr_votavel = ?", (ano, nr))
+            elif nr_secao == "Todas":
                 cur.execute("SELECT SUM(qt_votos) FROM boletim_urna WHERE ano = ? AND nr_votavel = ? AND nr_local = ?", (ano, nr, nr_local))
             else:
                 cur.execute("SELECT SUM(qt_votos) FROM boletim_urna WHERE ano = ? AND nr_votavel = ? AND nr_secao = ?", (ano, nr, nr_secao))

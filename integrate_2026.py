@@ -61,110 +61,90 @@ totais_records = []
 
 random.seed(42)
 pesos_secoes = {sec: random.uniform(0.85, 1.15) for sec, _ in todas_secoes}
-soma_pesos = sum(pesos_secoes.values())
+
+
+def distribuir(total, pesos):
+    """Distribui `total` inteiro entre as seções pelo método do maior resto (soma EXATA)."""
+    total = int(total)
+    if total <= 0:
+        return [0] * len(pesos)
+    soma = sum(pesos)
+    brutos = [total * p / soma for p in pesos]
+    base = [int(b) for b in brutos]
+    falta = total - sum(base)
+    ordem = sorted(range(len(pesos)), key=lambda i: brutos[i] - base[i], reverse=True)
+    for i in ordem[:falta]:
+        base[i] += 1
+    return base
+
+
+def pesos_cand(partido):
+    out = []
+    for sec, nr_loc in todas_secoes:
+        f = 1.0
+        if nr_loc in ["1090", "1180"] and partido in ["PT", "REPUBLICANOS"]:
+            f = 1.25
+        elif nr_loc in ["1015", "1023", "1112"] and partido in ["UNIÃO", "PSD"]:
+            f = 1.20
+        out.append(pesos_secoes[sec] * f)
+    return out
+
+
+pesos_base = [pesos_secoes[sec] for sec, _ in todas_secoes]
 
 for cargo, dados in resumo_2026.items():
     candidatos = dados["candidatos"]
+    legendas = dados.get("legendas", [])
     metricas = dados.get("metricas", {})
-    val_info = metricas.get("validos", {})
-    
+    val_info = metricas.get("validos", {}) or {}
+    apt_info = metricas.get("aptos", {}) or {}
+
     total_brancos = int(val_info.get("vb", 0))
     total_nulos = int(val_info.get("tvn", 0))
-    total_legenda = int(val_info.get("vl", 0))
-    
-    total_aptos = int(metricas.get("aptos", {}).get("te", 24725))
-    total_comp = int(metricas.get("aptos", {}).get("c", 18885))
-    total_abst = int(metricas.get("aptos", {}).get("a", 5840))
+    total_anul_sj = int(val_info.get("vansj", 0))
 
-    # Para cada seção, registrar aptos e comparecimento
-    for sec, nr_loc in todas_secoes:
-        peso = pesos_secoes[sec] / soma_pesos
-        aptos_sec = round(total_aptos * peso)
-        comp_sec = round(total_comp * peso)
-        abst_sec = max(0, aptos_sec - comp_sec)
-        totais_records.append((2026, 1, sec, nr_loc, cargo, aptos_sec, comp_sec, abst_sec))
-        
-    # Distribuir votos de cada candidato (Nominal)
+    total_aptos = int(apt_info.get("te", 24725))
+    total_comp = int(apt_info.get("c", 18885))
+
+    # Aptos e comparecimento com soma exata igual ao TSE
+    aptos_d = distribuir(total_aptos, pesos_base)
+    comp_d = distribuir(total_comp, pesos_base)
+    for i, (sec, nr_loc) in enumerate(todas_secoes):
+        comp_i = min(comp_d[i], aptos_d[i])
+        totais_records.append((2026, 1, sec, nr_loc, cargo, aptos_d[i], comp_i, aptos_d[i] - comp_i))
+
+    def add(dist, partido_nr, partido_sg, tipo, nr, nome):
+        for i, (sec, nr_loc) in enumerate(todas_secoes):
+            if dist[i] > 0:
+                bu_records.append((2026, 1, cargo, sec, nr_loc, partido_nr, partido_sg, tipo, nr, nome, dist[i]))
+
+    # Candidatos: válidos = Nominal | sub judice = Anulado (não entram nos válidos)
+    anul_cand = 0
     for cand in candidatos:
-        votos_totais = cand["votos"]
-        if votos_totais == 0:
+        if cand["votos"] <= 0:
             continue
-            
-        restante = votos_totais
-        for idx, (sec, nr_loc) in enumerate(todas_secoes):
-            if idx == len(todas_secoes) - 1:
-                votos_sec = restante
-            else:
-                fator_local = 1.0
-                if nr_loc in ["1090", "1180"] and cand["partido"] in ["PT", "REPUBLICANOS"]:
-                    fator_local = 1.25
-                elif nr_loc in ["1015", "1023", "1112"] and cand["partido"] in ["UNIÃO", "PSD"]:
-                    fator_local = 1.20
-                    
-                p = (pesos_secoes[sec] * fator_local) / soma_pesos
-                votos_sec = min(restante, max(0, round(votos_totais * p)))
-                restante -= votos_sec
-                
-            if votos_sec > 0:
-                bu_records.append((
-                    2026, 1, cargo, sec, nr_loc, cand["nr"][:2] if len(cand["nr"]) > 2 else cand["nr"],
-                    cand["partido"], "Nominal", cand["nr"], cand["nome"], votos_sec
-                ))
+        valido = cand.get("valido", True)
+        if not valido:
+            anul_cand += cand["votos"]
+        add(distribuir(cand["votos"], pesos_cand(cand["partido"])),
+            cand["nr"][:2], cand["partido"], "Nominal" if valido else "Anulado", cand["nr"], cand["nome"])
 
-    # Distribuir VOTOS BRANCOS
-    if total_brancos > 0:
-        restante_vb = total_brancos
-        for idx, (sec, nr_loc) in enumerate(todas_secoes):
-            if idx == len(todas_secoes) - 1:
-                v_vb = restante_vb
-            else:
-                p = pesos_secoes[sec] / soma_pesos
-                v_vb = min(restante_vb, max(0, round(total_brancos * p)))
-                restante_vb -= v_vb
-            if v_vb > 0:
-                bu_records.append((
-                    2026, 1, cargo, sec, nr_loc, "-1",
-                    "#BRANCO#", "Branco", "95", "Branco", v_vb
-                ))
+    # Legendas reais por partido (dados oficiais TSE)
+    anul_leg = 0
+    for lg in legendas:
+        valido = lg.get("valido", True)
+        if not valido:
+            anul_leg += lg["votos"]
+        add(distribuir(lg["votos"], pesos_base), lg["nr"], lg["partido"],
+            "Legenda" if valido else "Anulado", lg["nr"], lg["partido"])
 
-    # Distribuir VOTOS NULOS
-    if total_nulos > 0:
-        restante_vn = total_nulos
-        for idx, (sec, nr_loc) in enumerate(todas_secoes):
-            if idx == len(todas_secoes) - 1:
-                v_vn = restante_vn
-            else:
-                p = pesos_secoes[sec] / soma_pesos
-                v_vn = min(restante_vn, max(0, round(total_nulos * p)))
-                restante_vn -= v_vn
-            if v_vn > 0:
-                bu_records.append((
-                    2026, 1, cargo, sec, nr_loc, "-1",
-                    "#NULO#", "Nulo", "96", "Nulo", v_vn
-                ))
+    # Resíduo de votos anulados sub judice (legenda de partido com registro sub judice)
+    residuo = total_anul_sj - anul_cand - anul_leg
+    if residuo > 0:
+        add(distribuir(residuo, pesos_base), "-2", "#ANULADO#", "Anulado", "97", "Legenda anulada (sub judice)")
 
-    # Distribuir VOTOS DE LEGENDA
-    if total_legenda > 0:
-        partidos_com_legenda = sorted(list(set(c["partido"] for c in candidatos if c.get("partido") and c["partido"] not in ["#NULO#", "#BRANCO#"])))
-        if partidos_com_legenda:
-            votos_por_partido = total_legenda // len(partidos_com_legenda)
-            restante_leg_geral = total_legenda
-            for p_idx, pt in enumerate(partidos_com_legenda):
-                cota_pt = restante_leg_geral if p_idx == len(partidos_com_legenda) - 1 else votos_por_partido
-                restante_leg_geral -= cota_pt
-                pt_restante = cota_pt
-                for idx, (sec, nr_loc) in enumerate(todas_secoes):
-                    if idx == len(todas_secoes) - 1:
-                        v_vl = pt_restante
-                    else:
-                        p = pesos_secoes[sec] / soma_pesos
-                        v_vl = min(pt_restante, max(0, round(cota_pt * p)))
-                        pt_restante -= v_vl
-                    if v_vl > 0:
-                        bu_records.append((
-                            2026, 1, cargo, sec, nr_loc, pt[:2] if len(pt) >= 2 else "10",
-                            pt, "Legenda", pt[:2] if len(pt) >= 2 else "10", f"Voto de Legenda {pt}", v_vl
-                        ))
+    add(distribuir(total_brancos, pesos_base), "-1", "#BRANCO#", "Branco", "95", "Branco")
+    add(distribuir(total_nulos, pesos_base), "-1", "#NULO#", "Nulo", "96", "Nulo")
 
 cur.executemany("""
     INSERT INTO totais_secao (ano, turno, nr_secao, nr_local, cargo, qt_aptos, qt_comparecimento, qt_abstencoes)

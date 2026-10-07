@@ -1656,7 +1656,13 @@
 
       cabosList.forEach(c => {
         if (c.nr_candidato) candsSet.set(c.nr_candidato, c.nm_candidato || c.nr_candidato);
-        if (c.nr_local) locaisSet.set(c.nr_local, c.local_nome || c.nr_local);
+        if (c.nr_local) {
+          if (c.nr_local === "ALL") {
+            locaisSet.set("ALL_CABOS", "Geral (Todos os Locais)");
+          } else {
+            locaisSet.set(c.nr_local, c.local_nome || c.nr_local);
+          }
+        }
       });
 
       selCand.innerHTML = '<option value="ALL">Todos os Candidatos</option>';
@@ -1685,7 +1691,10 @@
 
       const filtrados = cabosList.filter(c => {
         if (filtroCand !== "ALL" && c.nr_candidato !== filtroCand) return false;
-        if (filtroLoc !== "ALL" && c.nr_local !== filtroLoc) return false;
+        if (filtroLoc !== "ALL") {
+          if (filtroLoc === "ALL_CABOS" && c.nr_local !== "ALL") return false;
+          if (filtroLoc !== "ALL_CABOS" && c.nr_local !== filtroLoc) return false;
+        }
         if (filtroTxt && !c.nome_cabo.toLowerCase().includes(filtroTxt) && !(c.telefone || "").includes(filtroTxt)) return false;
         return true;
       });
@@ -1705,7 +1714,7 @@
         let votosReais = 0;
         if (db && db.votos_por_secao) {
           Object.values(db.votos_por_secao).forEach(item => {
-            if (item.ano === ano && item.nr_local === c.nr_local) {
+            if (item.ano === ano && (c.nr_local === "ALL" || item.nr_local === c.nr_local)) {
               if (c.nr_secao === "Todas" || item.secao === c.nr_secao) {
                 (item.votos || []).forEach(v => {
                   if (v.nr === c.nr_candidato) {
@@ -1745,7 +1754,7 @@
               </div>
               <div class="flex items-center justify-between">
                 <span class="text-slate-400 font-medium">Seção Eleitoral:</span>
-                <span class="font-bold ${c.nr_secao === 'Todas' ? 'text-indigo-600 bg-indigo-50 px-1.5 py-0.2 rounded' : 'text-slate-800'}">${c.nr_secao === 'Todas' ? 'Todas do Colégio' : 'Seção ' + c.nr_secao}</span>
+                <span class="font-bold ${c.nr_secao === 'Todas' ? 'text-indigo-600 bg-indigo-50 px-1.5 py-0.2 rounded' : 'text-slate-800'}">${c.nr_local === 'ALL' ? 'Todas do Município' : (c.nr_secao === 'Todas' ? 'Todas do Colégio' : 'Seção ' + c.nr_secao)}</span>
               </div>
               ${c.telefone ? `
               <div class="pt-1">
@@ -1826,6 +1835,14 @@
 
       const selLoc = document.getElementById("inpCaboLocal");
       selLoc.innerHTML = "";
+
+      const optTodos = document.createElement("option");
+      optTodos.value = "ALL";
+      optTodos.dataset.nome = "Todos os Locais (Geral Canindé)";
+      optTodos.textContent = "Todos os Locais (Geral Canindé)";
+      if (localNr === "ALL") optTodos.selected = true;
+      selLoc.appendChild(optTodos);
+
       if (db && db.locais) {
         Object.values(db.locais).forEach(l => {
           const opt = document.createElement("option");
@@ -1861,6 +1878,11 @@
       const selSecao = document.getElementById("inpCaboSecao");
       const locId = selLoc.value;
 
+      if (locId === "ALL") {
+        selSecao.innerHTML = '<option value="Todas">Todas as Seções do Município (Geral)</option>';
+        return;
+      }
+
       selSecao.innerHTML = '<option value="Todas">Todas as Seções do Local</option>';
 
       if (db && db.locais && db.locais[locId]) {
@@ -1890,9 +1912,9 @@
 
       const selLoc = document.getElementById("inpCaboLocal");
       const locNr = selLoc.value;
-      const locNome = selLoc.options[selLoc.selectedIndex]?.dataset?.nome || "";
+      const locNome = locNr === "ALL" ? "Todos os Locais (Geral Canindé)" : (selLoc.options[selLoc.selectedIndex]?.dataset?.nome || "");
 
-      const secaoNr = document.getElementById("inpCaboSecao").value;
+      const secaoNr = locNr === "ALL" ? "Todas" : document.getElementById("inpCaboSecao").value;
       const nome = document.getElementById("inpCaboNome").value.trim();
       const tel = document.getElementById("inpCaboTel").value.trim();
       const meta = parseInt(document.getElementById("inpCaboMeta").value) || 0;
@@ -2172,7 +2194,7 @@
           let vReal = 0;
           if (db && db.votos_por_secao) {
             Object.values(db.votos_por_secao).forEach(item => {
-              if (item.ano === ano && item.nr_local === cabo.nr_local) {
+              if (item.ano === ano && (cabo.nr_local === "ALL" || item.nr_local === cabo.nr_local)) {
                 if (cabo.nr_secao === "Todas" || item.secao === cabo.nr_secao) {
                   (item.votos || []).forEach(v => {
                     if (v.nr === cItem.nr) vReal += v.qtd;
@@ -2254,11 +2276,11 @@
               </td>
               <td class="py-3 px-3.5 sm:px-4">
                 <div class="font-bold text-slate-700 text-xs">${cb.local_nome}</div>
-                <div class="text-[10px] text-slate-400 font-mono print:text-slate-600">Cód: ${cb.nr_local}</div>
+                <div class="text-[10px] text-slate-400 font-mono print:text-slate-600">${cb.nr_local === 'ALL' ? 'Todos os Locais' : 'Cód: ' + cb.nr_local}</div>
               </td>
               <td class="py-3 px-3.5 sm:px-4">
                 <span class="px-2 py-0.5 rounded text-xs font-bold ${cb.nr_secao === 'Todas' ? 'bg-indigo-50 text-indigo-700' : 'bg-slate-100 text-slate-800'} print:border print:border-slate-300">
-                  ${cb.nr_secao === 'Todas' ? 'Todas do Colégio' : 'Seção ' + cb.nr_secao}
+                  ${cb.nr_local === 'ALL' ? 'Todas do Município' : (cb.nr_secao === 'Todas' ? 'Todas do Colégio' : 'Seção ' + cb.nr_secao)}
                 </span>
               </td>
               <td class="py-3 px-3.5 sm:px-4 text-center font-bold text-slate-700 text-xs">
@@ -2381,7 +2403,7 @@
                   if (!partido && v.partido) partido = v.partido;
                 }
               });
-              if (item.nr_local === cb.nr_local && (cb.nr_secao === "Todas" || item.secao === cb.nr_secao)) {
+              if ((cb.nr_local === "ALL" || item.nr_local === cb.nr_local) && (cb.nr_secao === "Todas" || item.secao === cb.nr_secao)) {
                 (item.votos || []).forEach(v => {
                   if (v.nr === cb.nr_candidato) vReal += v.qtd;
                 });
