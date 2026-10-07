@@ -70,6 +70,13 @@ export default async function handler(req, res) {
       cabos = [];
     }
 
+    // Suporte a substituição/sincronização autoritativa (replace_all)
+    if (body.acao === "replace_all" && Array.isArray(body.cabos)) {
+      cabos = body.cabos;
+      await saveToKV(cabos);
+      return res.status(200).json({ status: "ok", count: cabos.length });
+    }
+
     // Suporte a importação/sincronização em lote (Array de cabos)
     if (Array.isArray(body)) {
       const map = new Map();
@@ -83,10 +90,10 @@ export default async function handler(req, res) {
     // Exclusão de cabo
     const isDelete = (req.url && req.url.includes("delete")) || body.acao === "delete" || (body.id && Object.keys(body).length <= 2);
     if (isDelete) {
-      const delId = body.id;
-      cabos = cabos.filter(c => c.id !== delId);
+      const delId = String(body.id);
+      cabos = cabos.filter(c => String(c.id) !== delId);
       await saveToKV(cabos);
-      return res.status(200).json({ status: "ok", deleted: delId });
+      return res.status(200).json({ status: "ok", deleted: delId, total: cabos.length });
     }
 
     // Novo cabo ou atualização

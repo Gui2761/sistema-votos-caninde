@@ -1616,26 +1616,24 @@
         const resp = await fetch(`/api/cabos?ano=${ano}`);
         if (resp.ok) {
           const dados = await resp.json();
-          const arrayNuvem = Array.isArray(dados) ? dados : [];
-          
-          // Mesclar dados locais e da Nuvem sem duplicar IDs
-          const map = new Map();
-          locaisSalvos.forEach(c => map.set(c.id, c));
-          arrayNuvem.forEach(c => map.set(c.id, c));
-          cabosList = Array.from(map.values());
-
-          if (cabosList.length > 0) {
-            localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
-            localStorage.setItem("cabos_caninde_master", JSON.stringify(cabosList));
-          }
-
-          // Se este dispositivo possui cabos que a Nuvem ainda não conhece, enviar automaticamente!
-          if (locaisSalvos.length > arrayNuvem.length) {
-            fetch("/api/cabos", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(cabosList)
-            }).catch(() => {});
+          if (Array.isArray(dados)) {
+            // Se a nuvem retornou dados, a nuvem é a autoridade central!
+            if (dados.length > 0 || localStorage.getItem("cabos_sincronizados_nuvem")) {
+              cabosList = dados;
+              localStorage.setItem("cabos_sincronizados_nuvem", "true");
+              localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
+              localStorage.setItem("cabos_caninde_master", JSON.stringify(cabosList));
+              localStorage.setItem("cabos_caninde_2026", JSON.stringify(cabosList));
+            } else if (locaisSalvos.length > 0) {
+              // Primeira inicialização com dados locais prévios: sobe para a nuvem
+              cabosList = locaisSalvos;
+              localStorage.setItem("cabos_sincronizados_nuvem", "true");
+              fetch("/api/cabos", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ acao: "replace_all", cabos: cabosList })
+              }).catch(() => {});
+            }
           }
         }
       } catch (err) {
@@ -1763,7 +1761,7 @@
                   Apoia: <span class="text-emerald-700 font-bold">${c.nr_candidato} - ${c.nm_candidato || 'Candidato'}</span>
                 </p>
               </div>
-              <button onclick="excluirCabo(${c.id})" class="text-slate-300 hover:text-rose-500 text-xs p-1 transition" title="Excluir cabo">
+              <button onclick="excluirCabo('${c.id}')" class="text-slate-300 hover:text-rose-500 text-xs p-1 transition" title="Excluir cabo">
                 <i class="fa-solid fa-trash-can"></i>
               </button>
             </div>
@@ -2008,9 +2006,15 @@
     async function excluirCabo(id) {
       if (!confirm("Deseja realmente remover este cabo eleitoral?")) return;
       const ano = parseInt(document.getElementById("selAno").value) || 2026;
-      cabosList = cabosList.filter(c => c.id !== id);
+      const delId = String(id);
+
+      // 1. Remover imediatamente da tela e de todas as chaves locais
+      cabosList = cabosList.filter(c => String(c.id) !== delId);
+      localStorage.setItem("cabos_sincronizados_nuvem", "true");
       localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
       localStorage.setItem("cabos_caninde_master", JSON.stringify(cabosList));
+      localStorage.setItem("cabos_caninde_2026", JSON.stringify(cabosList));
+
       popularFiltrosCabos();
       renderCabos();
       renderRelatorio();
@@ -2019,13 +2023,16 @@
       const badgeNav = document.getElementById("badgeNavCabos");
       if (badgeNav) badgeNav.textContent = cabosList.length;
 
+      // 2. Sincronizar exclusão autoritativa com a Nuvem
       try {
-        await fetch("/api/cabos/delete", {
+        await fetch("/api/cabos", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: id })
+          body: JSON.stringify({ acao: "replace_all", cabos: cabosList })
         });
-      } catch (e) {}
+      } catch (e) {
+        console.warn("Erro ao sincronizar exclusão com a nuvem:", e);
+      }
     }
 
     // ==========================================
@@ -2314,7 +2321,7 @@
                 ${statusBadge}
               </td>
               <td class="py-3 px-3.5 sm:px-4 text-right no-print">
-                <button onclick="excluirCabo(${cb.id})" class="text-slate-300 hover:text-rose-500 text-xs p-1 transition" title="Remover cabo">
+                <button onclick="excluirCabo('${cb.id}')" class="text-slate-300 hover:text-rose-500 text-xs p-1 transition" title="Remover cabo">
                   <i class="fa-solid fa-trash-can"></i>
                 </button>
               </td>
