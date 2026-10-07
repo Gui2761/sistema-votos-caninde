@@ -311,7 +311,7 @@
           <i class="fa-solid fa-circle-check"></i> 100% Fechado com TSE
         </span>
       </div>
-      <div class="text-[10px] text-slate-400 md:text-right">
+      <div class="text-[10px] text-slate-400 md:text-right" id="auditObs">
         *Boletins Oficiais 28ª Zona Eleitoral (TRE-SE)
       </div>
     </div>
@@ -1129,7 +1129,20 @@
       if (document.getElementById("auditValidos")) document.getElementById("auditValidos").textContent = `${totalValidos.toLocaleString("pt-BR")} Válidos`;
       if (document.getElementById("auditBN")) document.getElementById("auditBN").textContent = `${brancosNulos.toLocaleString("pt-BR")} Brancos/Nulos`;
       if (document.getElementById("auditSubJudice")) document.getElementById("auditSubJudice").textContent = `${subJudice.toLocaleString("pt-BR")} Sub Judice`;
-      if (document.getElementById("auditComp")) document.getElementById("auditComp").textContent = `${totalComp.toLocaleString("pt-BR")} Comparecimento`;
+
+      const elAuditComp = document.getElementById("auditComp");
+      const elAuditObs = document.getElementById("auditObs");
+
+      if (cargo === "Senador") {
+        if (elAuditComp) elAuditComp.textContent = `${totalCedulas.toLocaleString("pt-BR")} Votos (${totalComp.toLocaleString("pt-BR")} Eleitores × 2 Vagas)`;
+        if (elAuditObs) elAuditObs.innerHTML = `<span class="text-amber-700 font-semibold">*Senado 2026: renovação de 2/3 (cada eleitor digita 2 votos)</span> • TRE-SE`;
+      } else if (cargo === "ALL") {
+        if (elAuditComp) elAuditComp.textContent = `${totalCedulas.toLocaleString("pt-BR")} Votos Totais (5 Cargos)`;
+        if (elAuditObs) elAuditObs.textContent = `*Soma de todas as cédulas depositadas nas urnas para os 5 cargos • TRE-SE`;
+      } else {
+        if (elAuditComp) elAuditComp.textContent = `${totalComp.toLocaleString("pt-BR")} Comparecimento`;
+        if (elAuditObs) elAuditObs.textContent = `*Boletins Oficiais 28ª Zona Eleitoral (TRE-SE)`;
+      }
 
       const elValidosLabel = document.getElementById("kpiValidosLabel");
       const elValidosSub = document.getElementById("kpiValidosSub");
@@ -1139,6 +1152,10 @@
         if (elValidosLabel) elValidosLabel.textContent = "Votos Válidos (Soma)";
         if (elValidosSub) elValidosSub.textContent = "Soma de todos os cargos";
         if (elBnSub) elBnSub.textContent = `${bnPct} de todos os votos`;
+      } else if (cargo === "Senador") {
+        if (elValidosLabel) elValidosLabel.textContent = "Votos Válidos (2 Vagas)";
+        if (elValidosSub) elValidosSub.textContent = "Cada eleitor votou em 2 senadores";
+        if (elBnSub) elBnSub.textContent = `${bnPct} das escolhas para o Senado`;
       } else {
         if (elValidosLabel) elValidosLabel.textContent = "Votos Válidos";
         if (elValidosSub) elValidosSub.textContent = "Nominais + Legenda";
