@@ -20,12 +20,27 @@ export default async function handler(req, res) {
       return globalThis.__CABOS_MEM_STORE__ || [];
     }
     try {
-      const resp = await fetch(`${kvUrl}/get/cabos_caninde_2026`, {
-        headers: { Authorization: `Bearer ${kvToken}` }
+      // 1. Comando oficial Upstash Redis REST: ["GET", "key"]
+      const resp = await fetch(kvUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${kvToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(["GET", "cabos_caninde_2026"])
       });
       const json = await resp.json();
-      if (json && json.result) {
+      if (json && json.result !== undefined && json.result !== null) {
         return typeof json.result === "string" ? JSON.parse(json.result) : json.result;
+      }
+
+      // 2. Fallback rota /get/key
+      const respAlt = await fetch(`${kvUrl}/get/cabos_caninde_2026`, {
+        headers: { Authorization: `Bearer ${kvToken}` }
+      });
+      const jsonAlt = await respAlt.json();
+      if (jsonAlt && jsonAlt.result !== undefined && jsonAlt.result !== null) {
+        return typeof jsonAlt.result === "string" ? JSON.parse(jsonAlt.result) : jsonAlt.result;
       }
       return globalThis.__CABOS_MEM_STORE__ || [];
     } catch (e) {
@@ -34,14 +49,29 @@ export default async function handler(req, res) {
   }
 
   async function saveToKV(lista) {
-    globalThis.__CABOS_MEM_STORE__ = Array.isArray(lista) ? [...lista] : [];
+    const arr = Array.isArray(lista) ? [...lista] : [];
+    globalThis.__CABOS_MEM_STORE__ = arr;
     if (!kvUrl || !kvToken) return true;
     try {
+      const dataStr = JSON.stringify(arr);
+      // 1. Comando oficial Upstash Redis REST: ["SET", "key", "value"]
+      await fetch(kvUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${kvToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(["SET", "cabos_caninde_2026", dataStr])
+      });
+      // 2. Fallback rota /set/key
       await fetch(`${kvUrl}/set/cabos_caninde_2026`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${kvToken}`, "Content-Type": "application/json" },
-        body: JSON.stringify(JSON.stringify(lista))
-      });
+        headers: {
+          Authorization: `Bearer ${kvToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(dataStr)
+      }).catch(() => {});
       return true;
     } catch (e) {
       return false;

@@ -412,6 +412,9 @@
           <p class="text-xs text-slate-500">Vincule lideranças comunitárias aos candidatos em cada escola e urna eleitoral de Canindé</p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="limparTodosCabos()" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl transition border border-rose-200 active:scale-95" title="Apagar todos os cabos e zerar a base">
+            <i class="fa-solid fa-trash-can"></i> Limpar Todos
+          </button>
           <button onclick="abrirModalSync()" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition shadow-md active:scale-95" title="Sincronizar cabos com o celular via QR Code ou WhatsApp">
             <i class="fa-solid fa-mobile-screen"></i> Sincronizar Celular
           </button>
@@ -1611,29 +1614,16 @@
         renderRelatorio();
       }
 
-      // 2. Sincronizar bi-direcionalmente com a API em Nuvem
+      // 2. Sincronizar com a Nuvem (Nuvem é a verdade absoluta sempre que responde)
       try {
-        const resp = await fetch(`/api/cabos?ano=${ano}`);
+        const resp = await fetch(`/api/cabos?ano=${ano}&_t=${Date.now()}`);
         if (resp.ok) {
           const dados = await resp.json();
           if (Array.isArray(dados)) {
-            // Se a nuvem retornou dados, a nuvem é a autoridade central!
-            if (dados.length > 0 || localStorage.getItem("cabos_sincronizados_nuvem")) {
-              cabosList = dados;
-              localStorage.setItem("cabos_sincronizados_nuvem", "true");
-              localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
-              localStorage.setItem("cabos_caninde_master", JSON.stringify(cabosList));
-              localStorage.setItem("cabos_caninde_2026", JSON.stringify(cabosList));
-            } else if (locaisSalvos.length > 0) {
-              // Primeira inicialização com dados locais prévios: sobe para a nuvem
-              cabosList = locaisSalvos;
-              localStorage.setItem("cabos_sincronizados_nuvem", "true");
-              fetch("/api/cabos", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ acao: "replace_all", cabos: cabosList })
-              }).catch(() => {});
-            }
+            cabosList = dados;
+            localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
+            localStorage.setItem("cabos_caninde_master", JSON.stringify(cabosList));
+            localStorage.setItem("cabos_caninde_2026", JSON.stringify(cabosList));
           }
         }
       } catch (err) {
@@ -2032,6 +2022,34 @@
         });
       } catch (e) {
         console.warn("Erro ao sincronizar exclusão com a nuvem:", e);
+      }
+    }
+
+    async function limparTodosCabos() {
+      if (!confirm("⚠️ Tem certeza que deseja apagar TODOS os cabos cadastrados no sistema (PC e Celular)? Esta ação não pode ser desfeita.")) return;
+      const ano = parseInt(document.getElementById("selAno").value) || 2026;
+      cabosList = [];
+      localStorage.setItem("cabos_caninde_" + ano, "[]");
+      localStorage.setItem("cabos_caninde_master", "[]");
+      localStorage.setItem("cabos_caninde_2026", "[]");
+
+      popularFiltrosCabos();
+      renderCabos();
+      renderRelatorio();
+      const badge = document.getElementById("badgeQtdCabos");
+      if (badge) badge.textContent = "0";
+      const badgeNav = document.getElementById("badgeNavCabos");
+      if (badgeNav) badgeNav.textContent = "0";
+
+      try {
+        await fetch("/api/cabos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ acao: "replace_all", cabos: [] })
+        });
+        alert("✅ Todos os cabos foram removidos com sucesso em todos os aparelhos!");
+      } catch (e) {
+        console.warn("Erro ao limpar nuvem:", e);
       }
     }
 
