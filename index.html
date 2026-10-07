@@ -914,20 +914,14 @@
         selCargo.appendChild(opt);
       });
 
-      // Opção Todos os Cargos no fim do dropdown
-      const optTodos = document.createElement("option");
-      optTodos.value = "ALL";
-      optTodos.textContent = "Todos os Cargos (Soma Geral)";
-      selCargo.appendChild(optTodos);
-
-      if (currentVal && cargos.includes(currentVal)) {
+      if (currentVal && currentVal !== "ALL" && cargos.includes(currentVal)) {
         selCargo.value = currentVal;
       } else if (cargos.includes("Deputado Estadual")) {
         selCargo.value = "Deputado Estadual";
       } else if (cargos.includes("Prefeito")) {
         selCargo.value = "Prefeito";
       } else {
-        selCargo.value = cargos[0] || "ALL";
+        selCargo.value = cargos[0] || "Deputado Estadual";
       }
 
       renderMobileCargoChips(cargos);
@@ -954,9 +948,9 @@
       if (!container) return;
       container.innerHTML = "";
       const selCargo = document.getElementById("selCargo");
-      const cargoAtual = selCargo ? selCargo.value : (cargos.includes("Deputado Estadual") ? "Deputado Estadual" : (cargos[0] || "ALL"));
+      const cargoAtual = selCargo ? selCargo.value : (cargos.includes("Deputado Estadual") ? "Deputado Estadual" : (cargos[0] || "Deputado Estadual"));
 
-      const listaItens = [...cargos.map(c => ({ valor: c, label: c })), { valor: "ALL", label: "Todos os Cargos" }];
+      const listaItens = cargos.map(c => ({ valor: c, label: c }));
 
       listaItens.forEach(item => {
         const btn = document.createElement("button");
@@ -1609,27 +1603,43 @@
         }
       } catch (e) {}
 
-      // 2. Tentar sincronizar com a API sem apagar o que o usuário cadastrou
+      // Se a tela ainda está vazia, renderizar locaisSalvos imediatamente
+      if (cabosList.length === 0 && locaisSalvos.length > 0) {
+        cabosList = [...locaisSalvos];
+        popularFiltrosCabos();
+        renderCabos();
+        renderRelatorio();
+      }
+
+      // 2. Sincronizar bi-direcionalmente com a API em Nuvem
       try {
         const resp = await fetch(`/api/cabos?ano=${ano}`);
         if (resp.ok) {
           const dados = await resp.json();
-          if (Array.isArray(dados) && dados.length > 0) {
-            // Mesclar dados sem duplicar IDs
-            const map = new Map();
-            locaisSalvos.forEach(c => map.set(c.id, c));
-            dados.forEach(c => map.set(c.id, c));
-            cabosList = Array.from(map.values());
+          const arrayNuvem = Array.isArray(dados) ? dados : [];
+          
+          // Mesclar dados locais e da Nuvem sem duplicar IDs
+          const map = new Map();
+          locaisSalvos.forEach(c => map.set(c.id, c));
+          arrayNuvem.forEach(c => map.set(c.id, c));
+          cabosList = Array.from(map.values());
+
+          if (cabosList.length > 0) {
             localStorage.setItem("cabos_caninde_" + ano, JSON.stringify(cabosList));
             localStorage.setItem("cabos_caninde_master", JSON.stringify(cabosList));
-          } else {
-            cabosList = locaisSalvos;
           }
-        } else {
-          cabosList = locaisSalvos;
+
+          // Se este dispositivo possui cabos que a Nuvem ainda não conhece, enviar automaticamente!
+          if (locaisSalvos.length > arrayNuvem.length) {
+            fetch("/api/cabos", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(cabosList)
+            }).catch(() => {});
+          }
         }
       } catch (err) {
-        cabosList = locaisSalvos;
+        console.warn("API de cabos em nuvem offline, mantendo dados locais:", err);
       }
 
       if (!cabosList) cabosList = [];
@@ -1643,6 +1653,17 @@
       renderCabos();
       renderRelatorio();
     }
+
+    // Auto-sincronização automática em background a cada 20 segundos e ao voltar para a aba
+    setInterval(() => {
+      carregarCabos();
+    }, 20000);
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        carregarCabos();
+      }
+    });
 
 
     function popularFiltrosCabos() {

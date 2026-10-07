@@ -72,7 +72,10 @@ export default async function handler(req, res) {
 
     // Suporte a importação/sincronização em lote (Array de cabos)
     if (Array.isArray(body)) {
-      cabos = body;
+      const map = new Map();
+      cabos.forEach(c => map.set(c.id, c));
+      body.forEach(c => map.set(c.id, c));
+      cabos = Array.from(map.values());
       await saveToKV(cabos);
       return res.status(200).json({ status: "ok", count: cabos.length });
     }
@@ -86,9 +89,9 @@ export default async function handler(req, res) {
       return res.status(200).json({ status: "ok", deleted: delId });
     }
 
-    // Novo cabo
+    // Novo cabo ou atualização
     const novo = {
-      id: Date.now(),
+      id: body.id || Date.now(),
       ano: parseInt(body.ano) || 2026,
       cargo: body.cargo || "",
       nr_candidato: String(body.nr_candidato || ""),
@@ -102,7 +105,12 @@ export default async function handler(req, res) {
       observacao: body.observacao || ""
     };
 
-    cabos.unshift(novo);
+    const idx = cabos.findIndex(c => c.id === novo.id);
+    if (idx >= 0) {
+      cabos[idx] = novo;
+    } else {
+      cabos.unshift(novo);
+    }
     await saveToKV(cabos);
     return res.status(200).json({ status: "ok", id: novo.id });
   }
